@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-rtsp^h*_0*by3vz!virq2)0^_l&7_^yl9#b)3pbplw)t$jx#7^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1","localhost",'jsonapi-connecttoamalmathew.b4a.run']
+ALLOWED_HOSTS = ["127.0.0.1","localhost",'jsonapi1-connecttoamalmathew.b4a.run']
 
 
 
@@ -135,7 +135,7 @@ CORS_ALLOW_METHODS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://jsonapi-connecttoamalmathew.b4a.run/'
+    'https://jsonapi1-connecttoamalmathew.b4a.run/'
 
 ]
 
