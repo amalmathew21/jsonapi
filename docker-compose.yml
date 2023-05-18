@@ -1,0 +1,15 @@
+version: '3.11'
+services:
+  web:
+    build: .
+    command: gunicorn --bind 0.0.0.0:8000 ApiJson.wsgi:application
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  db:
+    image: postgres:12
+    environment:
+      - POSTGRES_DB=Jsondata
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
