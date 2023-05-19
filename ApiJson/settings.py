@@ -143,12 +143,13 @@ CORS_ALLOW_METHODS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://jsonapi1-connecttoamalmathew.b4a.run/'
+    'https://jsonexample.onrender.com/'
 
 ]
 
 CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:8000',
+    'https://jsonexample.onrender.com/'
 
     'http://127.0.0.1:3000',
 
@@ -163,6 +164,7 @@ import dj_database_url
 DATABASES = {
 
 'default': dj_database_url.parse(env('DATABASE_URL'))
+
 
 
 
