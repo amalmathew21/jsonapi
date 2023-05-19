@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+import environ
+env = environ.Env()
+
+environ.Env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,8 +30,8 @@ SECRET_KEY = 'django-insecure-rtsp^h*_0*by3vz!virq2)0^_l&7_^yl9#b)3pbplw)t$jx#7^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1","localhost",'jsonapi1-connecttoamalmathew.b4a.run']
-
+#ALLOWED_HOSTS = ["127.0.0.1","localhost",'jsonapi1-connecttoamalmathew.b4a.run','jsondataapi.onrender.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -77,16 +82,19 @@ WSGI_APPLICATION = 'ApiJson.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'Jsondata',
-        'USER': 'postgres',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
+# DATABASES = {
+#     'default': #dj_database_url.parse(os.environ.get("DATABASE_URL"))
+#     {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'Jsondata',
+#         'USER': 'postgres',
+#         'PASSWORD': 'password',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
+# os.environ["DATABASE_URL"] = "postgres://jsondata_k4i9_user:yeXULTwjZQQOE5A68GUkn8SeY7rbA9hE@dpg-chj0upjhp8ufsbm2leh0-a.oregon-postgres.render.com/jsondata_k4i9"
 
 
 # Password validation
@@ -148,4 +156,15 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ORIGIN_ALL0W_ALL = True
+
+
+import dj_database_url
+
+DATABASES = {
+
+'default': dj_database_url.parse(env('DATABASE_URL'))
+
+
+
+}
 
