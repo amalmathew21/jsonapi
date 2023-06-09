@@ -9,8 +9,15 @@ class MyModel(models.Model):
         return f'MyModel object ({self.pk})'
 
 class ImageModel(models.Model):
-    json_data = models.JSONField(null=False, default=dict)
     image = models.ImageField(upload_to='images/')
+
+    def __str__(self):
+        return f'MyModel object ({self.pk})'
+
+
+class DataModel(models.Model):
+    json_data = models.JSONField(null=False, default=dict)
+
 
     def __str__(self):
         return f'MyModel object ({self.pk})'
