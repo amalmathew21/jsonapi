@@ -6,4 +6,5 @@ from .models import *
 admin.site.register(MyModel)
 admin.site.register(ImageModel)
 admin.site.register(DataModel)
+admin.site.register(Leads)
 
