@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.validators import RegexValidator
 from datetime import date
+from django.contrib.postgres.fields import JSONField
+from django.forms import DateInput
 
 # Create your models here.
 
@@ -25,6 +27,7 @@ class DataModel(models.Model):
 
 
 class Leads(models.Model):
+    json_data = models.JSONField(default=dict)
     leadId = models.IntegerField(primary_key = True)
     firstName = models.CharField(max_length=255)
     lastName = models.CharField(max_length=255)
@@ -32,24 +35,6 @@ class Leads(models.Model):
     phoneNumber = models.BigIntegerField(unique=True, validators=[RegexValidator(regex='^\d{10}$', message='Length has to be 10', code='Invalid number')])
     fax = models.BigIntegerField()
     company = models.CharField(max_length=255)
-    city = models.CharField(max_length=255)
-    state = models.CharField(max_length=255)
-    country = models.CharField(max_length=255)
-    pincode = models.BigIntegerField()
-    createdDate = models.DateField(default=date.today)
-    modifiedDate = models.DateField(default=date.today)
-    accountName = models.CharField(max_length=255)
-    accountRevenue = models.BigIntegerField()
-
-    def __str__(self):
-        return str(self.leadId)
-
-    class Meta:
-        verbose_name_plural = 'Leads'
-
-
-class LeadsDropDown(models.Model):
-    leadId = models.ForeignKey(Leads, on_delete=models.CASCADE, null=True)
     dpLeadStatus = (
         ('LS1', 'New'),
         ('LS2', 'Assigned'),
@@ -69,6 +54,46 @@ class LeadsDropDown(models.Model):
         ('LSo7', 'Other')
     )
     leadSource = models.CharField(max_length=4, choices=dpLeadSource)
+    city = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+    pincode = models.BigIntegerField()
+    # createdDate = models.DateField(default=date.today)
+    # modifiedDate = models.DateField(default=date.today)
+    accountName = models.CharField(max_length=255)
+    accountRevenue = models.BigIntegerField()
+
+
+    def save(self, *args, **kwargs):
+        self.json_data = {
+            'leadId': self.leadId,
+            'firstName': self.firstName,
+            'lastName': self.lastName,
+            'email': self.email,
+            'phoneNumber': self.phoneNumber,
+            'fax': self.fax,
+            'company': self.company,
+            'leadStatus': self.leadStatus,
+            'leadSource': self.leadSource,
+            'city': self.city,
+            'state': self.state,
+            'country': self.country,
+            'pincode': self.pincode,
+            # 'createdDate': self.createdDate,
+            # 'modifiedDate': self.modifiedDate,
+            'accountName': self.accountName,
+            'accountRevenue': self.accountRevenue,
+            # Include other fields in the JSON data
+        }
+        super().save(*args, **kwargs)
+
+
+    def __str__(self):
+        return str(self.leadId)
+
+    class Meta:
+        verbose_name_plural = 'Leads'
+
 
 
 

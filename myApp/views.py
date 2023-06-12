@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
+from rest_framework.views import APIView
 
 @csrf_exempt
 def json_data_view(request, pk=None):
@@ -141,84 +142,48 @@ def data_view(request, pk=None):
         return JsonResponse({'message': 'Invalid request method.'})
 
 
-@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
-def lead_api(request, pk=None):
-    if request.method == 'GET':
-        if pk is not None:
-            lead = Leads.objects.get(pk=pk)
-            serializer = LeadsSerializer(lead)
-            return Response(serializer.data)
-        else:
-            leads = Leads.objects.all()
-            serializer = LeadsSerializer(leads, many=True)
-            return Response(serializer.data)
-
-    elif request.method == 'POST':
-        data = request.data  # Assuming you are sending the JSON data in the request body
-        serializer = LeadsSerializer(data=data)
+class LeadAPIView(APIView):
+    def post(self, request):
+        serializer = LeadsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Data saved successfully.'})
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(serializer.errors, status=400)
 
-    elif request.method in ['PUT', 'PATCH']:
-        lead = Leads.objects.get(pk=pk)
-        data = request.data
-        serializer = LeadsSerializer(lead, data=data, partial=request.method == 'PATCH')
+    def get_object(self, pk):
+        try:
+            return Leads.objects.get(pk=pk)
+        except Leads.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        lead = self.get_object(pk)
+        serializer = LeadsSerializer(lead)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        lead = self.get_object(pk)
+        serializer = LeadsSerializer(lead, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Data updated successfully.'})
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=400)
 
-    elif request.method == 'DELETE':
-        lead = Leads.objects.get(pk=pk)
-        lead.delete()
-        return Response({'message': 'Data deleted successfully.'})
-
-    else:
-        return Response({'message': 'Invalid request method.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
-@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
-def lead_dropdown_api(request, pk=None):
-    if request.method == 'GET':
-        if pk is not None:
-            lead = LeadsDropDown.objects.get(pk=pk)
-            serializer = LeadsDropDownSerializer(lead)
-            return Response(serializer.data)
-        else:
-            leads = LeadsDropDown.objects.all()
-            serializer = LeadsDropDownSerializer(leads, many=True)
-            return Response(serializer.data)
-
-    elif request.method == 'POST':
-        data = request.data  # Assuming you are sending the JSON data in the request body
-        serializer = LeadsDropDownSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'Data saved successfully.'})
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    elif request.method in ['PUT', 'PATCH']:
-        lead = LeadsDropDown.objects.get(pk=pk)
-        data = request.data
-        serializer = LeadsDropDownSerializer(lead, data=data, partial=request.method == 'PATCH')
+    def patch(self, request, pk):
+        lead = self.get_object(pk)
+        serializer = LeadsSerializer(lead, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Data updated successfully.'})
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=400)
 
-    elif request.method == 'DELETE':
-        lead = LeadsDropDown.objects.get(pk=pk)
+    def delete(self, request, pk):
+        lead = self.get_object(pk)
         lead.delete()
         return Response({'message': 'Data deleted successfully.'})
 
-    else:
-        return Response({'message': 'Invalid request method.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
 
 
 

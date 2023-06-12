@@ -8,9 +8,6 @@ urlpatterns = [
     path('api/image/<int:pk>/', image_data_view, name='image-data-detail'),
     path('api/data/',data_view,name='jsondataview'),
     path('api/data/<int:pk>/',data_view,name='dataview'),
-    path('api/leads/', lead_api, name='leads'),
-    path('api/leads/<int:pk>/', lead_api, name='lead-detail'),
-    path('api/leads-dropdown', lead_dropdown_api, name='leadsdropdown'),
-    path('api/leads-dropdown/<int:pk>/', lead_dropdown_api, name='lead-detail-dropdown'),
-
+    path('api/leads/', LeadAPIView.as_view(), name='leads'),
+    path('api/leads/<int:pk>/', LeadAPIView.as_view(), name='leadsdetails'),
 ]
