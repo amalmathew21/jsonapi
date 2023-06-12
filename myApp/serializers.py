@@ -23,3 +23,9 @@ class LeadsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Leads
         fields = '__all__'
+
+
+class LeadsDropDownSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LeadsDropDown
+        fields = '__all__'

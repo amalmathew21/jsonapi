@@ -32,6 +32,24 @@ class Leads(models.Model):
     phoneNumber = models.BigIntegerField(unique=True, validators=[RegexValidator(regex='^\d{10}$', message='Length has to be 10', code='Invalid number')])
     fax = models.BigIntegerField()
     company = models.CharField(max_length=255)
+    city = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)
+    country = models.CharField(max_length=255)
+    pincode = models.BigIntegerField()
+    createdDate = models.DateField(default=date.today)
+    modifiedDate = models.DateField(default=date.today)
+    accountName = models.CharField(max_length=255)
+    accountRevenue = models.BigIntegerField()
+
+    def __str__(self):
+        return str(self.leadId)
+
+    class Meta:
+        verbose_name_plural = 'Leads'
+
+
+class LeadsDropDown(models.Model):
+    leadId = models.ForeignKey(Leads, on_delete=models.CASCADE, null=True)
     dpLeadStatus = (
         ('LS1', 'New'),
         ('LS2', 'Assigned'),
@@ -51,20 +69,6 @@ class Leads(models.Model):
         ('LSo7', 'Other')
     )
     leadSource = models.CharField(max_length=4, choices=dpLeadSource)
-    city = models.CharField(max_length=255)
-    state = models.CharField(max_length=255)
-    country = models.CharField(max_length=255)
-    pincode = models.BigIntegerField()
-    createdDate = models.DateField(default=date.today)
-    modifiedDate = models.DateField(default=date.today)
-    accountName = models.CharField(max_length=255)
-    accountRevenue = models.BigIntegerField()
-
-    def __str__(self):
-        return str(self.leadId)
-
-    class Meta:
-        verbose_name_plural = 'Leads'
 
 
 

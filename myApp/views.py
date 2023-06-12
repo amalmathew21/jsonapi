@@ -181,3 +181,44 @@ def lead_api(request, pk=None):
         return Response({'message': 'Invalid request method.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
+@api_view(['GET', 'POST', 'PUT', 'PATCH', 'DELETE'])
+def lead_dropdown_api(request, pk=None):
+    if request.method == 'GET':
+        if pk is not None:
+            lead = LeadsDropDown.objects.get(pk=pk)
+            serializer = LeadsDropDownSerializer(lead)
+            return Response(serializer.data)
+        else:
+            leads = LeadsDropDown.objects.all()
+            serializer = LeadsDropDownSerializer(leads, many=True)
+            return Response(serializer.data)
+
+    elif request.method == 'POST':
+        data = request.data  # Assuming you are sending the JSON data in the request body
+        serializer = LeadsDropDownSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Data saved successfully.'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method in ['PUT', 'PATCH']:
+        lead = LeadsDropDown.objects.get(pk=pk)
+        data = request.data
+        serializer = LeadsDropDownSerializer(lead, data=data, partial=request.method == 'PATCH')
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Data updated successfully.'})
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    elif request.method == 'DELETE':
+        lead = LeadsDropDown.objects.get(pk=pk)
+        lead.delete()
+        return Response({'message': 'Data deleted successfully.'})
+
+    else:
+        return Response({'message': 'Invalid request method.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+

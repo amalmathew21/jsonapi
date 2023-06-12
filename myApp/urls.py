@@ -10,5 +10,7 @@ urlpatterns = [
     path('api/data/<int:pk>/',data_view,name='dataview'),
     path('api/leads/', lead_api, name='leads'),
     path('api/leads/<int:pk>/', lead_api, name='lead-detail'),
+    path('api/leads-dropdown', lead_dropdown_api, name='leadsdropdown'),
+    path('api/leads-dropdown/<int:pk>/', lead_dropdown_api, name='lead-detail-dropdown'),
 
 ]
