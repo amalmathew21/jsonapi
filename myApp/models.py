@@ -3,6 +3,8 @@ from django.core.validators import RegexValidator
 from datetime import date
 from django.contrib.postgres.fields import JSONField
 from django.forms import DateInput
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.files.storage import default_storage
 
 import json
 
@@ -52,6 +54,7 @@ class MyModel(models.Model):
 
 class DropdownModel(models.Model):
     json_data = models.JSONField(null=False, default=dict)
+
     def __str__(self):
         return f'DropdownModel object ({self.pk})'
 
@@ -117,18 +120,19 @@ class Lead(models.Model):
             'state': self.state,
             'country': self.country,
             'pincode': self.pincode,
-            # 'createdDate': self.createdDate,
-            # 'modifiedDate': self.modifiedDate,
+            'createdDate': str(self.createdDate),  # Convert to string
+            'modifiedDate': str(self.modifiedDate),
             'accountName': self.accountName,
             'accountRevenue': self.accountRevenue,
         }
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Lead {self.leadId}"
+        return str(self.leadId)
 
     class Meta:
         verbose_name_plural = 'Leads'
+
 
 class Accounts(models.Model):
     json_data = models.JSONField(default=dict)
@@ -174,26 +178,36 @@ class Accounts(models.Model):
             'billingAddress': self.billingAddress,
             'shippingAddress': self.shippingAddress,
             'sicCode': self.sicCode,
-            # 'createdDate': self.createdDate,
-            # 'modifiedDate': self.modifiedDate,
+            'createdDate': str(self.createdDate),  # Convert to string
+            'modifiedDate': str(self.modifiedDate),
         }
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Account {self.accountId}"
+        return str(self.accountId)
 
     class Meta:
         verbose_name_plural = 'Accounts'
 
+
+class CustomJSONEncoder(DjangoJSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, models.Model):
+            return str(obj)
+        elif isinstance(obj, date):
+            return obj.strftime('%Y-%m-%d')
+        return super().default(obj)
+
 class Opportunities(models.Model):
-    json_data = models.JSONField(default=dict)
+    json_data = models.JSONField(default=dict, encoder=CustomJSONEncoder)
     opportunityId = models.IntegerField(primary_key=True)
-    opportunityName = models.CharField(max_length=255)
+    opportunityName = models.TextField(null=True, blank=True)
     dpOpportunityType = (
-        ('OT1', 'Existing Business'),
-        ('OT2', 'New Business')
+        ('OT1', 'Type 1'),
+        ('OT2', 'Type 2'),
+        ('OT3', 'Type 3'),
     )
-    opportunityType = models.CharField(max_length=10, choices=dpOpportunityType)
+    opportunityType = models.CharField(max_length=3, choices=dpOpportunityType, null=True, blank=True)
     accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
     leadId = models.ForeignKey(Lead, on_delete=models.CASCADE, null=True)
     dpLeadSource = (
@@ -205,51 +219,63 @@ class Opportunities(models.Model):
         ('LSo6', 'Public Relations'),
         ('LSo7', 'Other')
     )
-    leadSource = models.CharField(max_length=5, choices=dpLeadSource)
-    amount = models.FloatField()
+    leadSource = models.CharField(max_length=4, choices=dpLeadSource, null=True, blank=True)
+    amount = models.IntegerField(null=True, blank=True)
     dpStage = (
-        ('S1', 'Prospecting'),
-        ('S2', 'Qualification'),
-        ('S3', 'Needs Analysis'),
-        ('S4', 'Value Proposition'),
-        ('S5', 'Identify Decision Makers')
-
+        ('S1', 'Stage 1'),
+        ('S2', 'Stage 2'),
+        ('S3', 'Stage 3'),
+        ('S4', 'Stage 4'),
+        ('S5', 'Stage 5'),
     )
-    stage = models.CharField(max_length=10, choices=dpStage)
-    expectedCloseDate = models.DateField()
-    probability = models.CharField(max_length=255)
-    createdDate = models.DateField(default=date.today)
-    modifiedDate = models.DateField(default=date.today)
+    stage = models.CharField(max_length=2, choices=dpStage, null=True, blank=True)
+    expectedCloseDate = models.DateField(null=True, blank=True)
+    probability = models.IntegerField(null=True, blank=True)
+    createdDate = models.DateField(null=True, blank=True)
+    modifiedDate = models.DateField(null=True, blank=True)
+    profilePhoto = models.ImageField(upload_to='opportunity_photos/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
+
+        if self.profilePhoto:
+            # Save the profilePhoto file
+            profile_photo_path = f'opportunity_photos/{self.profilePhoto.name}'
+            profile_photo_path = default_storage.save(profile_photo_path, self.profilePhoto)
+
+
+            profile_photo_url = default_storage.url(profile_photo_path)
+        else:
+            profile_photo_url = None
+
         self.json_data = {
             'opportunityId': self.opportunityId,
             'opportunityName': self.opportunityName,
             'opportunityType': self.opportunityType,
-            'accountId': self.accountId,
-            'leadId': self.leadId,
+            'accountId': self.accountId_id if self.accountId else None,
+            'leadId': self.leadId_id if self.leadId else None,
             'leadSource': self.leadSource,
             'amount': self.amount,
             'stage': self.stage,
             'expectedCloseDate': self.expectedCloseDate,
             'probability': self.probability,
-            # 'createdDate': self.createdDate,
-            # 'modifiedDate': self.modifiedDate,
+            'createdDate': self.createdDate,
+            'modifiedDate': self.modifiedDate,
+            'profilePhoto': profile_photo_url,
         }
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Opportunity {self.opportunityId}"
+        return str(self.opportunityId)
 
     class Meta:
-        verbose_name_plural = 'Oppurtunity'
+        verbose_name_plural = 'Opportunity'
 
 class Task(models.Model):
-    json_data = models.JSONField(default=dict)
+    json_data = models.JSONField(default=dict,encoder=CustomJSONEncoder)
     taskId = models.IntegerField(primary_key=True)
     taskName = models.TextField(blank=True)
     accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
-    opportunityId= models.ForeignKey(Opportunities, on_delete=models.CASCADE, null=True)
+    opportunityId = models.ForeignKey(Opportunities, on_delete=models.CASCADE, null=True)
     dueDate = models.DateField(null=True, blank=True)
     startDate = models.DateField(null=True, blank=True)
     dpStatus = (
@@ -259,94 +285,114 @@ class Task(models.Model):
         ('ST4', 'Pending Input'),
         ('ST5', 'Deferred'),
     )
-    status = models.CharField(max_length=10, choices=dpStatus,null=True,blank=True)
+    status = models.CharField(max_length=10, choices=dpStatus, null=True, blank=True)
     dpPriority = (
         ('P1', 'High'),
         ('P2', 'Medium'),
         ('P3', 'Low'),
     )
-    priority = models.CharField(max_length=10, choices=dpPriority,null=True,blank=True)
+    priority = models.CharField(max_length=10, choices=dpPriority, null=True, blank=True)
     createdDate = models.DateField(null=True, blank=True)
     modifiedDate = models.DateField(null=True, blank=True)
     profilePic = models.ImageField(upload_to='task_profile_pics/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        if self.profilePic:
+            # Save the profilePhoto file
+            profilePic_path = f'task_profile_pics/{self.profilePic.name}'
+            profilePic_path = default_storage.save(profilePic_path, self.profilePhoto)
+
+
+            profilePic_url = default_storage.url(profilePic_path)
+        else:
+            profilePic_url = None
         self.json_data = {
             'taskId': self.taskId,
             'taskName': self.taskName,
-            'accountId': self.accountId,
-            'opportunityId': self.opportunityId,
-            # 'dueDate': self.dueDate,
-            # 'startDate': self.startDate,
+            'accountId': self.accountId_id if self.accountId else None,
+            'opportunityId': self.opportunityId_id if self.opportunityId else None,
+            'dueDate': self.dueDate,
+            'startDate': self.startDate,
             'status': self.status,
             'priority': self.priority,
-            # 'createdDate': self.createdDate,
-            # 'modifiedDate': self.modifiedDate,
-            #'profilePic':self.profilePic
+            'createdDate': self.createdDate,
+            'modifiedDate': self.modifiedDate,
+            'profilePic': profilePic_url
         }
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Task {self.taskId}"
+        return str(self.taskId)
 
     class Meta:
         verbose_name_plural = 'Task'
 
+
 class Report(models.Model):
-    json_data = models.JSONField(default=dict)
-    reportId = models.IntegerField()
+    json_data = models.JSONField(default=dict,encoder=CustomJSONEncoder)
+    reportId = models.IntegerField(primary_key=True)
     reportName = models.TextField(null=True, blank=True)
     accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
     opportunityId = models.ForeignKey(Opportunities, on_delete=models.CASCADE, null=True)
     createdDate = models.DateField(null=True, blank=True)
     modifiedDate = models.DateField(null=True, blank=True)
 
-
     def save(self, *args, **kwargs):
         self.json_data = {
             'reportId': self.taskId,
             'reportName': self.taskName,
-            'accountId': self.accountId,
-            'opportunityId': self.opportunityId,
-            # 'createdDate': self.createdDate,
-            # 'modifiedDate': self.modifiedDate,
+            'accountId': self.accountId_id if self.accountId else None,
+            'opportunityId': self.opportunityId_id if self.opportunityId else None,
+            'createdDate': self.createdDate,
+            'modifiedDate': self.modifiedDate,
         }
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Report {self.reportId}"
+        return str(self.reportId)
 
     class Meta:
-        verbose_name_plural ='Report'
+        verbose_name_plural = 'Report'
+
 
 class Notes(models.Model):
-    json_data = models.JSONField(default=dict)
-    noteId = models.IntegerField()
+    json_data = models.JSONField(default=dict,encoder=CustomJSONEncoder)
+    noteId = models.IntegerField(primary_key=True)
     accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
     opportunityId = models.ForeignKey(Opportunities, on_delete=models.CASCADE, null=True)
     NOTE_CHOICES = (
         ('N1', 'note1'),
         ('N2', 'note2'),
         ('N3', 'note3'),
+        ('N4', 'note4')
     )
 
     noteType = models.CharField(max_length=4, choices=NOTE_CHOICES)
     name = models.TextField(blank=True)
-    profilePhoto = models.ImageField(upload_to='notes_profile_photos/',null=True, blank=True)
+    profilePhoto = models.ImageField(upload_to='notes_profile_photos/', null=True, blank=True)
 
     def save(self, *args, **kwargs):
+        if self.profilePhoto:
+            # Save the profilePhoto file
+            profile_photo_path = f'notes_profile_photos/{self.profilePhoto.name}'
+            profile_photo_path = default_storage.save(profile_photo_path, self.profilePhoto)
+
+
+            profile_photo_url = default_storage.url(profile_photo_path)
+        else:
+            profile_photo_url = None
         self.json_data = {
             'noteId': self.noteId,
-            'accountId': self.accountId,
-            'opportunityId': self.opportunityId,
+            'accountId': self.accountId_id if self.accountId else None,
+            'opportunityId': self.opportunityId_id if self.opportunityId else None,
             'noteType': self.noteType,
             'name': self.name,
-            #'profilePhoto':self.profilePhoto
+            'profilePhoto': profile_photo_url,
         }
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Note {self.noteId}"
+        return str(self.noteId)
 
     class Meta:
-        verbose_name_plural ='Note'
+        verbose_name_plural = 'Note'

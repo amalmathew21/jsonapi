@@ -275,11 +275,12 @@ class AccountAPIView(APIView):
 
 class OpportunityAPIView(APIView):
     parser_classes = [MultiPartParser]
-
     def post(self, request, format=None):
         serializer = OpportunitySerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            # Access uploaded file from request.FILES
+            profile_photo = request.FILES.get('profilePhoto')
+            serializer.save(profilePhoto=profile_photo)  # Pass the file to the serializer
             return Response({'message': 'Data saved successfully.'})
         else:
             return Response(serializer.errors, status=400)
@@ -323,11 +324,12 @@ class TaskAPIView(APIView):
     def post(self, request, format=None):
         serializer = TasksSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            # Access uploaded file from request.FILES
+            profile_pic = request.FILES.get('profilePic')
+            serializer.save(profilePic=profile_pic)  # Pass the file to the serializer
             return Response({'message': 'Data saved successfully.'})
         else:
             return Response(serializer.errors, status=400)
-
     def get_object(self, pk):
         try:
             return Task.objects.get(pk=pk)
@@ -411,7 +413,9 @@ class NoteAPIView(APIView):
     def post(self, request, format=None):
         serializer = NotesSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+
+            profile_photo = request.FILES.get('profilePhoto')
+            serializer.save(profilePhoto=profile_photo)  # Pass the file to the serializer
             return Response({'message': 'Data saved successfully.'})
         else:
             return Response(serializer.errors, status=400)

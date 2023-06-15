@@ -1,5 +1,7 @@
 from django.urls import path
 from .views import *
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('api/json-file/<int:pk>/', json_data_view, name='json-file'),
@@ -21,3 +23,6 @@ urlpatterns = [
     path('api/notes/', NoteAPIView.as_view(), name='notes'),
     path('api/notes/<int:pk>/', NoteAPIView.as_view(), name='notes'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
