@@ -188,12 +188,13 @@ class Accounts(models.Model):
 class Opportunities(models.Model):
     json_data = models.JSONField(default=dict)
     opportunityId = models.IntegerField(primary_key=True)
-    opportunityName = models.CharField(max_length=255)
+    opportunityName = models.TextField(null=True, blank=True)
     dpOpportunityType = (
-        ('OT1', 'Existing Business'),
-        ('OT2', 'New Business')
+        ('OT1', 'Type 1'),
+        ('OT2', 'Type 2'),
+        ('OT3', 'Type 3'),
     )
-    opportunityType = models.CharField(max_length=10, choices=dpOpportunityType)
+    opportunityType = models.CharField(max_length=3, choices=dpOpportunityType, null=True, blank=True)
     accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
     leadId = models.ForeignKey(Lead, on_delete=models.CASCADE, null=True)
     dpLeadSource = (
@@ -205,21 +206,22 @@ class Opportunities(models.Model):
         ('LSo6', 'Public Relations'),
         ('LSo7', 'Other')
     )
-    leadSource = models.CharField(max_length=5, choices=dpLeadSource)
-    amount = models.FloatField()
+    leadSource = models.CharField(max_length=4, choices=dpLeadSource, null=True, blank=True)
+    amount = models.IntegerField(null=True, blank=True)
     dpStage = (
-        ('S1', 'Prospecting'),
-        ('S2', 'Qualification'),
-        ('S3', 'Needs Analysis'),
-        ('S4', 'Value Proposition'),
-        ('S5', 'Identify Decision Makers')
-
+        ('S1', 'Stage 1'),
+        ('S2', 'Stage 2'),
+        ('S3', 'Stage 3'),
+        ('S4', 'Stage 4'),
+        ('S5', 'Stage 5'),
     )
-    stage = models.CharField(max_length=10, choices=dpStage)
-    expectedCloseDate = models.DateField()
-    probability = models.CharField(max_length=255)
-    createdDate = models.DateField(default=date.today)
-    modifiedDate = models.DateField(default=date.today)
+    stage = models.CharField(max_length=2, choices=dpStage, null=True, blank=True)
+    expectedCloseDate = models.DateField(null=True, blank=True)
+    probability = models.IntegerField(null=True, blank=True)
+    createdDate = models.DateField(null=True, blank=True)
+    modifiedDate = models.DateField(null=True, blank=True)
+    profilePhoto = models.ImageField(upload_to='opportunity_photos/', null=True, blank=True)
+
 
     def save(self, *args, **kwargs):
         self.json_data = {
@@ -235,6 +237,7 @@ class Opportunities(models.Model):
             'probability': self.probability,
             # 'createdDate': self.createdDate,
             # 'modifiedDate': self.modifiedDate,
+            # 'profilePhoto' : self.profilePhoto,
         }
         super().save(*args, **kwargs)
 
