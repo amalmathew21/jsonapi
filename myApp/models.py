@@ -100,7 +100,7 @@ class Lead(models.Model):
     createdDate = models.DateField(null=True, blank=True)
     modifiedDate = models.DateField(null=True, blank=True)
     accountName = models.TextField(null=True, blank=True)
-    annualRevenue = models.IntegerField(null=True, blank=True)
+    accountRevenue = models.IntegerField(null=True, blank=True)
 
     def save(self, *args, **kwargs):
         self.json_data = {
