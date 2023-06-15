@@ -168,7 +168,7 @@ class Accounts(models.Model):
             'accountType': self.accountType,
             'accountNumber': self.accountNumber,
             'industry': self.industry,
-            'website': self.fax,
+            'website': self.website,
             'tickerSymbol': self.tickerSymbol,
             'phoneNumber': self.phoneNumber,
             'billingAddress': self.billingAddress,
