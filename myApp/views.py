@@ -181,7 +181,7 @@ def dropdown_dataview(request, pk=None):
     else:
         return JsonResponse({'message': 'Invalid request method.'})
 
-class LeadsView(APIView):
+class LeadsAPIView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, format=None):
