@@ -190,8 +190,8 @@ class Opportunities(models.Model):
     opportunityId = models.IntegerField(primary_key=True)
     opportunityName = models.CharField(max_length=255)
     dpOpportunityType = (
-        ('EB1', 'Existing Business'),
-        ('EB2', 'New Business')
+        ('OT1', 'Existing Business'),
+        ('OT2', 'New Business')
     )
     opportunityType = models.CharField(max_length=10, choices=dpOpportunityType)
     accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
