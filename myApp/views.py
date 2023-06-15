@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 
+
 @csrf_exempt
 def json_data_view(request, pk=None):
     if request.method == 'GET':
@@ -49,6 +50,7 @@ def json_data_view(request, pk=None):
 
     else:
         return JsonResponse({'message': 'Invalid request method.'})
+
 
 # @csrf_exempt
 # def image_data_view(request, pk=None):
@@ -142,6 +144,7 @@ def data_view(request, pk=None):
     else:
         return JsonResponse({'message': 'Invalid request method.'})
 
+
 @csrf_exempt
 def dropdown_dataview(request, pk=None):
     if request.method == 'GET':
@@ -180,6 +183,7 @@ def dropdown_dataview(request, pk=None):
 
     else:
         return JsonResponse({'message': 'Invalid request method.'})
+
 
 class LeadAPIView(APIView):
     parser_classes = [MultiPartParser]
@@ -224,8 +228,11 @@ class LeadAPIView(APIView):
         lead.delete()
         return Response({'message': 'Data deleted successfully.'})
 
+
 class AccountAPIView(APIView):
-    def post(self, request):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, format=None):
         serializer = AccountsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -267,7 +274,9 @@ class AccountAPIView(APIView):
 
 
 class OpportunityAPIView(APIView):
-    def post(self, request):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, format=None):
         serializer = OpportunitySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -309,7 +318,9 @@ class OpportunityAPIView(APIView):
 
 
 class TaskAPIView(APIView):
-    def post(self, request):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, format=None):
         serializer = TasksSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -351,7 +362,9 @@ class TaskAPIView(APIView):
 
 
 class ReportAPIView(APIView):
-    def post(self, request):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, format=None):
         serializer = ReportsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -393,7 +406,9 @@ class ReportAPIView(APIView):
 
 
 class NoteAPIView(APIView):
-    def post(self, request):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, format=None):
         serializer = NotesSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
