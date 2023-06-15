@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.views import APIView
+from rest_framework.parsers import MultiPartParser
+from rest_framework.response import Response
 
 @csrf_exempt
 def json_data_view(request, pk=None):
@@ -179,8 +181,10 @@ def dropdown_dataview(request, pk=None):
     else:
         return JsonResponse({'message': 'Invalid request method.'})
 
-class LeadAPIView(APIView):
-    def post(self, request):
+class LeadsView(APIView):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, format=None):
         serializer = LeadsSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
