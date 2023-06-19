@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
+from django.http import HttpResponse
 
 
 @csrf_exempt
@@ -451,3 +452,44 @@ class NoteAPIView(APIView):
         notes = self.get_object(pk)
         notes.delete()
         return Response({'message': 'Data deleted successfully.'})
+
+# def get_opportunity_photo(request, opportunity_id):
+#     try:
+#         opportunity = Opportunities.objects.get(opportunityId=opportunity_id)
+#         if opportunity.profilePhoto:
+#             photo_url = request.build_absolute_uri(opportunity.profilePhoto.url)
+#             # Return the photo URL or use it to display the image in your response
+#             return HttpResponse(photo_url)
+#         else:
+#             return HttpResponse("No photo available.")
+#     except Opportunities.DoesNotExist:
+#         return HttpResponse("Opportunity not found.")
+
+
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from .models import Opportunities
+
+def opportunity_photo_view(request, opportunity_id):
+    # Retrieve the Opportunities object based on the provided opportunity_id
+    opportunity = get_object_or_404(Opportunities, opportunityId=opportunity_id)
+
+    # Assuming the profilePhoto is stored as a FileField or ImageField in the Opportunities model
+    profile_photo = opportunity.profilePhoto
+
+    # Check if the profile photo exists
+    if profile_photo and profile_photo.storage.exists(profile_photo.name):
+        # Retrieve the photo file content
+        with profile_photo.storage.open(profile_photo.name, 'rb') as file:
+            # Set the appropriate response headers
+            response = HttpResponse(file.read(), content_type='image/jpeg')
+
+            # You can optionally set a filename for the response
+            # response['Content-Disposition'] = 'attachment; filename="profile_photo.jpg"'
+
+            return response
+    else:
+        # Return an appropriate response if the profile photo is not found
+        return HttpResponse("Profile photo not found.", status=404)
+
+

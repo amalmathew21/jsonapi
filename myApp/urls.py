@@ -2,6 +2,7 @@ from django.urls import path
 from .views import *
 from django.conf import settings
 from django.conf.urls.static import static
+from . import views
 
 urlpatterns = [
     path('api/json-file/<int:pk>/', json_data_view, name='json-file'),
@@ -22,6 +23,8 @@ urlpatterns = [
     path('api/reports/<int:pk>/', ReportAPIView.as_view(), name='reportsdetails'),
     path('api/notes/', NoteAPIView.as_view(), name='notes'),
     path('api/notes/<int:pk>/', NoteAPIView.as_view(), name='notes'),
+
+    path('api/opportunity/<int:opportunity_id>/photo/',views.opportunity_photo_view, name='opportunity_photo'),
 ]
 
 if settings.DEBUG:
