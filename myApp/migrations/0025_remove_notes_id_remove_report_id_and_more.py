@@ -21,11 +21,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='notes',
-            name='json_data',
-            field=models.JSONField(default=dict, encoder=myApp.models.CustomJSONEncoder),
-        ),
-        migrations.AlterField(
-            model_name='notes',
             name='noteId',
             field=models.IntegerField(primary_key=True, serialize=False),
         ),
@@ -36,17 +31,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='report',
-            name='json_data',
-            field=models.JSONField(default=dict, encoder=myApp.models.CustomJSONEncoder),
-        ),
-        migrations.AlterField(
-            model_name='report',
             name='reportId',
             field=models.IntegerField(primary_key=True, serialize=False),
-        ),
-        migrations.AlterField(
-            model_name='task',
-            name='json_data',
-            field=models.JSONField(default=dict, encoder=myApp.models.CustomJSONEncoder),
-        ),
+        )
     ]

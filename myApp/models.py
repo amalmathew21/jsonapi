@@ -73,7 +73,6 @@ class DataModel(models.Model):
 
 
 class Lead(models.Model):
-    json_data = models.JSONField(default=dict)
     leadId = models.IntegerField(primary_key=True)
     firstName = models.TextField(null=True, blank=True)
     lastName = models.TextField(null=True, blank=True)
@@ -111,28 +110,6 @@ class Lead(models.Model):
     accountName = models.TextField(null=True, blank=True)
     accountRevenue = models.IntegerField(null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        self.json_data = {
-            'leadId': self.leadId,
-            'firstName': self.firstName,
-            'lastName': self.lastName,
-            'email': self.email,
-            'phoneNumber': self.phoneNumber,
-            'fax': self.fax,
-            'company': self.company,
-            'leadStatus': self.leadStatus,
-            'leadSource': self.leadSource,
-            'city': self.city,
-            'state': self.state,
-            'country': self.country,
-            'pincode': self.pincode,
-            'createdDate': str(self.createdDate),  # Convert to string
-            'modifiedDate': str(self.modifiedDate),
-            'accountName': self.accountName,
-            'accountRevenue': self.accountRevenue,
-        }
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return str(self.leadId)
 
@@ -141,7 +118,7 @@ class Lead(models.Model):
 
 
 class Accounts(models.Model):
-    json_data = models.JSONField(default=dict)
+
     accountId = models.IntegerField(primary_key=True)
     accountName = models.CharField(max_length=255)
     dpAccount_type = (
@@ -171,24 +148,6 @@ class Accounts(models.Model):
     createdDate = models.DateField(null=True, blank=True)
     modifiedDate = models.DateField(null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        self.json_data = {
-            'accountId': self.accountId,
-            'accountName': self.accountName,
-            'accountType': self.accountType,
-            'accountNumber': self.accountNumber,
-            'industry': self.industry,
-            'website': self.website,
-            'tickerSymbol': self.tickerSymbol,
-            'phoneNumber': self.phoneNumber,
-            'billingAddress': self.billingAddress,
-            'shippingAddress': self.shippingAddress,
-            'sicCode': self.sicCode,
-            'createdDate': str(self.createdDate),  # Convert to string
-            'modifiedDate': str(self.modifiedDate),
-        }
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return str(self.accountId)
 
@@ -196,17 +155,10 @@ class Accounts(models.Model):
         verbose_name_plural = 'Accounts'
 
 
-class CustomJSONEncoder(DjangoJSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, models.Model):
-            return str(obj)
-        elif isinstance(obj, date):
-            return obj.strftime('%Y-%m-%d')
-        return super().default(obj)
+
 
 
 class Opportunities(models.Model):
-    json_data = models.JSONField(default=dict)
     opportunityId = models.IntegerField(primary_key=True)
     opportunityName = models.TextField(null=True, blank=True)
     dpOpportunityType = (
@@ -248,37 +200,21 @@ class Opportunities(models.Model):
         default_storage.save(file_path, image_file)
 
     def save(self, *args, **kwargs):
-        if self.profilePhoto and isinstance(self.profilePhoto, str):
-            # Convert the Base64 data to a file and save it as the profilePhoto
-            file_path = f'opportunity_photos/{self.profilePhoto.name}'
-            self.save_base64_image(self.profilePhoto, file_path)
-            profile_photo_url = default_storage.url(file_path)
-        elif self.profilePhoto:
-            # Save the uploaded image file and get its URL
-            file_path = f'opportunity_photos/{self.profilePhoto.name}'
-            default_storage.save(file_path, self.profilePhoto)
-            profile_photo_url = default_storage.url(file_path)
-        else:
-            profile_photo_url = None
+        if self.profilePhoto:
+            if isinstance(self.profilePhoto, str):
 
-        self.json_data = {
-            'opportunityId': self.opportunityId,
-            'opportunityName': self.opportunityName,
-            'opportunityType': self.opportunityType,
-            'accountId': self.accountId_id if self.accountId else None,
-            'leadId': self.leadId_id if self.leadId else None,
-            'leadSource': self.leadSource,
-            'amount': self.amount,
-            'stage': self.stage,
-            'expectedCloseDate': str(self.expectedCloseDate),
-            'probability': self.probability,
-            'createdDate': str(self.createdDate),
-            'modifiedDate': str(self.modifiedDate),
-            'profilePhoto': profile_photo_url,
-        }
+                file_path = f'opportunity_photos/{self.profilePhoto.name}'
+                self.save_base64_image(self.profilePhoto, file_path)
+                self.profilePhoto = file_path
+            else:
+
+                file_path = f'opportunity_photos/{self.profilePhoto.name}'
+                default_storage.save(file_path, self.profilePhoto)
+                self.profilePhoto = file_path
+        else:
+            self.profilePhoto = None
 
         super().save(*args, **kwargs)
-
     def __str__(self):
         return str(self.opportunityId)
 
@@ -286,7 +222,6 @@ class Opportunities(models.Model):
         verbose_name_plural = 'Opportunities'
 
 class Task(models.Model):
-    json_data = models.JSONField(default=dict,encoder=CustomJSONEncoder)
     taskId = models.IntegerField(primary_key=True)
     taskName = models.TextField(blank=True)
     accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
@@ -318,35 +253,20 @@ class Task(models.Model):
         default_storage.save(file_path, image_file)
 
     def save(self, *args, **kwargs):
-        if self.profilePic and isinstance(self.profilePhoto, str):
+        if self.profilePic:
+            if isinstance(self.profilePic, str):
 
-            file_path = f'task_profile_pics/{self.profilePic.name}'
-            self.save_base64_image(self.profilePic, file_path)
-            profilePic_url = default_storage.url(file_path)
-        elif self.profilePhoto:
-            # Save the uploaded image file and get its URL
-            file_path = f'task_profile_pics/{self.profilePhoto.name}'
-            default_storage.save(file_path, self.profilePhoto)
-            profilePic_url = default_storage.url(file_path)
+                file_path = f'task_profile_pics/{self.profilePic.name}'
+                self.save_base64_image(self.profilePic, file_path)
+                self.profilePic = file_path
+            else:
+
+                file_path = f'task_profile_pics/{self.profilePic.name}'
+                default_storage.save(file_path, self.profilePic)
+                self.profilePic = file_path
         else:
-            profilePic_url = None
+            self.profilePic = None
 
-
-
-
-        self.json_data = {
-            'taskId': self.taskId,
-            'taskName': self.taskName,
-            'accountId': self.accountId_id if self.accountId else None,
-            'opportunityId': self.opportunityId_id if self.opportunityId else None,
-            'dueDate': self.dueDate,
-            'startDate': self.startDate,
-            'status': self.status,
-            'priority': self.priority,
-            'createdDate': self.createdDate,
-            'modifiedDate': self.modifiedDate,
-            'profilePic': profilePic_url
-        }
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -357,24 +277,12 @@ class Task(models.Model):
 
 
 class Report(models.Model):
-    json_data = models.JSONField(default=dict,encoder=CustomJSONEncoder)
     reportId = models.IntegerField(primary_key=True)
     reportName = models.TextField(null=True, blank=True)
     accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
     opportunityId = models.ForeignKey(Opportunities, on_delete=models.CASCADE, null=True)
     createdDate = models.DateField(null=True, blank=True)
     modifiedDate = models.DateField(null=True, blank=True)
-
-    def save(self, *args, **kwargs):
-        self.json_data = {
-            'reportId': self.taskId,
-            'reportName': self.taskName,
-            'accountId': self.accountId_id if self.accountId else None,
-            'opportunityId': self.opportunityId_id if self.opportunityId else None,
-            'createdDate': self.createdDate,
-            'modifiedDate': self.modifiedDate,
-        }
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return str(self.reportId)
@@ -384,7 +292,6 @@ class Report(models.Model):
 
 
 class Notes(models.Model):
-    json_data = models.JSONField(default=dict,encoder=CustomJSONEncoder)
     noteId = models.IntegerField(primary_key=True)
     accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
     opportunityId = models.ForeignKey(Opportunities, on_delete=models.CASCADE, null=True)
@@ -405,27 +312,20 @@ class Notes(models.Model):
         default_storage.save(file_path, image_file)
 
     def save(self, *args, **kwargs):
-        if self.profilePhoto and isinstance(self.profilePhoto, str):
+        if self.profilePhoto:
+            if isinstance(self.profilePhoto, str):
 
-            file_path = f'notes_profile_photos/{self.profilePhoto.name}'
-            self.save_base64_image(self.profilePhoto, file_path)
-            profile_photo_url = default_storage.url(file_path)
-        elif self.profilePhoto:
+                file_path = f'notes_profile_photos/{self.profilePhoto.name}'
+                self.save_base64_image(self.profilePhoto, file_path)
+                self.profilePhoto = file_path
+            else:
 
-            file_path = f'notes_profile_photos/{self.profilePhoto.name}'
-            default_storage.save(file_path, self.profilePhoto)
-            profile_photo_url = default_storage.url(file_path)
+                file_path = f'notes_profile_photos/{self.profilePhoto.name}'
+                default_storage.save(file_path, self.profilePhoto)
+                self.profilePhoto = file_path
         else:
-            profile_photo_url = None
+            self.profilePhoto = None
 
-        self.json_data = {
-            'noteId': self.noteId,
-            'accountId': self.accountId_id if self.accountId else None,
-            'opportunityId': self.opportunityId_id if self.opportunityId else None,
-            'noteType': self.noteType,
-            'name': self.name,
-            'profilePhoto': profile_photo_url,
-        }
         super().save(*args, **kwargs)
 
     def __str__(self):

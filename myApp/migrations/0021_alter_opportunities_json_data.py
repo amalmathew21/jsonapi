@@ -10,10 +10,4 @@ class Migration(migrations.Migration):
         ('myApp', '0020_opportunities_profilephoto_and_more'),
     ]
 
-    operations = [
-        migrations.AlterField(
-            model_name='opportunities',
-            name='json_data',
-            field=models.JSONField(default=dict, encoder=myApp.models.CustomJSONEncoder),
-        ),
-    ]
+
