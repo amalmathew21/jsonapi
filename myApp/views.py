@@ -276,16 +276,16 @@ class AccountAPIView(APIView):
 
 class OpportunityAPIView(APIView):
     parser_classes = [MultiPartParser]
+
     def post(self, request, format=None):
         serializer = OpportunitySerializer(data=request.data)
+
         if serializer.is_valid():
-            # Access uploaded file from request.FILES
-            profile_photo = request.FILES.get('profilePhoto')
-            serializer.save(profilePhoto=profile_photo)  # Pass the file to the serializer
+            serializer.save(profilePhoto=request.data.get('profilePhoto'))  # Pass the file to the serializer
             return Response({'message': 'Data saved successfully.'})
         else:
             return Response(serializer.errors, status=400)
-
+        
     def get_object(self, pk):
         try:
             return Opportunities.objects.get(pk=pk)
