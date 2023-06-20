@@ -276,16 +276,16 @@ class AccountAPIView(APIView):
 
 class OpportunityAPIView(APIView):
     parser_classes = [MultiPartParser]
+
     def post(self, request, format=None):
         serializer = OpportunitySerializer(data=request.data)
+
         if serializer.is_valid():
-            # Access uploaded file from request.FILES
-            profile_photo = request.FILES.get('profilePhoto')
-            serializer.save(profilePhoto=profile_photo)  # Pass the file to the serializer
+            serializer.save(profilePhoto=request.data.get('profilePhoto'))  # Pass the file to the serializer
             return Response({'message': 'Data saved successfully.'})
         else:
             return Response(serializer.errors, status=400)
-
+        
     def get_object(self, pk):
         try:
             return Opportunities.objects.get(pk=pk)
@@ -491,5 +491,41 @@ def opportunity_photo_view(request, opportunity_id):
     else:
         # Return an appropriate response if the profile photo is not found
         return HttpResponse("Profile photo not found.", status=404)
+
+class LeadsData(APIView):
+    def get(self, request):
+        leads = Lead.objects.all()
+        serializer = LeadsSerializer(leads, many=True)
+        return Response(serializer.data)
+
+class AccountsData(APIView):
+    def get(self, request):
+        accounts = Accounts.objects.all()
+        serializer = AccountsSerializer(accounts, many=True)
+        return Response(serializer.data)
+
+class OpportunitiesData(APIView):
+    def get(self, request):
+        opportunity = Opportunities.objects.all()
+        serializer = OpportunitySerializer(opportunity, many=True)
+        return Response(serializer.data)
+
+class TasksData(APIView):
+    def get(self, request):
+        tasks = Task.objects.all()
+        serializer = LeadsSerializer(tasks, many=True)
+        return Response(serializer.data)
+
+class ReportsData(APIView):
+    def get(self, request):
+        reports = Report.objects.all()
+        serializer = LeadsSerializer(reports, many=True)
+        return Response(serializer.data)
+
+class NotesData(APIView):
+    def get(self, request):
+        notes = Notes.objects.all()
+        serializer = LeadsSerializer(notes, many=True)
+        return Response(serializer.data)
 
 

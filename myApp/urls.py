@@ -23,8 +23,16 @@ urlpatterns = [
     path('api/reports/<int:pk>/', ReportAPIView.as_view(), name='reportsdetails'),
     path('api/notes/', NoteAPIView.as_view(), name='notes'),
     path('api/notes/<int:pk>/', NoteAPIView.as_view(), name='notes'),
-
     path('api/opportunity/<int:opportunity_id>/photo/',views.opportunity_photo_view, name='opportunity_photo'),
+
+    path('api/leadsdata/',LeadsData.as_view(),name="leaddata"),
+    path('api/accountsdata/',AccountsData.as_view(),name="accountsdata"),
+    path('api/opportunitiesdata/',OpportunitiesData.as_view(),name="opportunitiesdata"),
+    path('api/tasksdata/',TasksData.as_view(),name="tasksdata"),
+    path('api/reportsdata/',ReportsData.as_view(),name="reportsdata"),
+    path('api/notesdata/',NotesData.as_view(),name="notesdata"),
+
+
 ]
 
 if settings.DEBUG:

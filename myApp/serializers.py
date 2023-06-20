@@ -102,18 +102,18 @@ class OpportunitySerializer(serializers.ModelSerializer):
         profile_photo = validated_data.pop('profilePhoto', None)
 
         if account_id:
-            account_id = int(account_id)  # Convert account ID to integer
+            account_id = int(account_id)
 
         if lead_id:
-            lead_id = int(lead_id)  # Convert lead ID to integer
+            lead_id = int(lead_id)
 
         opportunity = Opportunities.objects.create(accountId_id=account_id, leadId_id=lead_id, **validated_data)
 
         if profile_photo:
+
             opportunity.profilePhoto.save(profile_photo.name, ContentFile(profile_photo.read()), save=True)
 
         return opportunity
-
 class TasksSerializer(serializers.ModelSerializer):
     profilePic = serializers.SerializerMethodField()
     accountId = serializers.CharField(required=False)
@@ -141,6 +141,7 @@ class TasksSerializer(serializers.ModelSerializer):
             return instance.profilePic.url
         return None
 
+
     def create(self, validated_data):
         account_id = validated_data.pop('accountId', None)
         opportunityId = validated_data.pop('opportunityId', None)
@@ -158,6 +159,7 @@ class TasksSerializer(serializers.ModelSerializer):
             task.profilePic.save(profile_pic.name, ContentFile(profile_pic.read()), save=True)
 
         return task
+
 
 
 class ReportsSerializer(serializers.ModelSerializer):
@@ -206,10 +208,12 @@ class NotesSerializer(serializers.ModelSerializer):
             return instance.profilePhoto.url
         return None
 
+
     def create(self, validated_data):
         account_id = validated_data.pop('accountId', None)
         opportunityId = validated_data.pop('opportunityId', None)
         profile_photo = validated_data.pop('profilePhoto', None)
+
 
         if account_id:
             account_id = int(account_id)

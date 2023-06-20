@@ -8,6 +8,12 @@ from django.core.files.storage import default_storage
 
 import json
 
+import base64
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+
+
+
 json_data1 = '''
     [
       {
@@ -198,8 +204,9 @@ class CustomJSONEncoder(DjangoJSONEncoder):
             return obj.strftime('%Y-%m-%d')
         return super().default(obj)
 
+
 class Opportunities(models.Model):
-    json_data = models.JSONField(default=dict, encoder=CustomJSONEncoder)
+    json_data = models.JSONField(default=dict)
     opportunityId = models.IntegerField(primary_key=True)
     opportunityName = models.TextField(null=True, blank=True)
     dpOpportunityType = (
@@ -235,15 +242,22 @@ class Opportunities(models.Model):
     modifiedDate = models.DateField(null=True, blank=True)
     profilePhoto = models.ImageField(upload_to='opportunity_photos/', null=True, blank=True)
 
+    def save_base64_image(self, data, file_path):
+        image_data = base64.b64decode(data)
+        image_file = ContentFile(image_data, name=file_path)
+        default_storage.save(file_path, image_file)
+
     def save(self, *args, **kwargs):
-
-        if self.profilePhoto:
-            # Save the profilePhoto file
-            profile_photo_path = f'opportunity_photos/{self.profilePhoto.name}'
-            profile_photo_path = default_storage.save(profile_photo_path, self.profilePhoto)
-
-
-            profile_photo_url = default_storage.url(profile_photo_path)
+        if self.profilePhoto and isinstance(self.profilePhoto, str):
+            # Convert the Base64 data to a file and save it as the profilePhoto
+            file_path = f'opportunity_photos/{self.profilePhoto.name}'
+            self.save_base64_image(self.profilePhoto, file_path)
+            profile_photo_url = default_storage.url(file_path)
+        elif self.profilePhoto:
+            # Save the uploaded image file and get its URL
+            file_path = f'opportunity_photos/{self.profilePhoto.name}'
+            default_storage.save(file_path, self.profilePhoto)
+            profile_photo_url = default_storage.url(file_path)
         else:
             profile_photo_url = None
 
@@ -256,19 +270,20 @@ class Opportunities(models.Model):
             'leadSource': self.leadSource,
             'amount': self.amount,
             'stage': self.stage,
-            'expectedCloseDate': self.expectedCloseDate,
+            'expectedCloseDate': str(self.expectedCloseDate),
             'probability': self.probability,
-            'createdDate': self.createdDate,
-            'modifiedDate': self.modifiedDate,
+            'createdDate': str(self.createdDate),
+            'modifiedDate': str(self.modifiedDate),
             'profilePhoto': profile_photo_url,
         }
+
         super().save(*args, **kwargs)
 
     def __str__(self):
         return str(self.opportunityId)
 
     class Meta:
-        verbose_name_plural = 'Opportunity'
+        verbose_name_plural = 'Opportunities'
 
 class Task(models.Model):
     json_data = models.JSONField(default=dict,encoder=CustomJSONEncoder)
@@ -296,16 +311,29 @@ class Task(models.Model):
     modifiedDate = models.DateField(null=True, blank=True)
     profilePic = models.ImageField(upload_to='task_profile_pics/', null=True, blank=True)
 
+
+    def save_base64_image(self, data, file_path):
+        image_data = base64.b64decode(data)
+        image_file = ContentFile(image_data, name=file_path)
+        default_storage.save(file_path, image_file)
+
     def save(self, *args, **kwargs):
-        if self.profilePic:
-            # Save the profilePhoto file
-            profilePic_path = f'task_profile_pics/{self.profilePic.name}'
-            profilePic_path = default_storage.save(profilePic_path, self.profilePhoto)
+        if self.profilePic and isinstance(self.profilePhoto, str):
 
-
-            profilePic_url = default_storage.url(profilePic_path)
+            file_path = f'task_profile_pics/{self.profilePic.name}'
+            self.save_base64_image(self.profilePic, file_path)
+            profilePic_url = default_storage.url(file_path)
+        elif self.profilePhoto:
+            # Save the uploaded image file and get its URL
+            file_path = f'task_profile_pics/{self.profilePhoto.name}'
+            default_storage.save(file_path, self.profilePhoto)
+            profilePic_url = default_storage.url(file_path)
         else:
             profilePic_url = None
+
+
+
+
         self.json_data = {
             'taskId': self.taskId,
             'taskName': self.taskName,
@@ -371,16 +399,25 @@ class Notes(models.Model):
     name = models.TextField(blank=True)
     profilePhoto = models.ImageField(upload_to='notes_profile_photos/', null=True, blank=True)
 
+    def save_base64_image(self, data, file_path):
+        image_data = base64.b64decode(data)
+        image_file = ContentFile(image_data, name=file_path)
+        default_storage.save(file_path, image_file)
+
     def save(self, *args, **kwargs):
-        if self.profilePhoto:
-            # Save the profilePhoto file
-            profile_photo_path = f'notes_profile_photos/{self.profilePhoto.name}'
-            profile_photo_path = default_storage.save(profile_photo_path, self.profilePhoto)
+        if self.profilePhoto and isinstance(self.profilePhoto, str):
 
+            file_path = f'notes_profile_photos/{self.profilePhoto.name}'
+            self.save_base64_image(self.profilePhoto, file_path)
+            profile_photo_url = default_storage.url(file_path)
+        elif self.profilePhoto:
 
-            profile_photo_url = default_storage.url(profile_photo_path)
+            file_path = f'notes_profile_photos/{self.profilePhoto.name}'
+            default_storage.save(file_path, self.profilePhoto)
+            profile_photo_url = default_storage.url(file_path)
         else:
             profile_photo_url = None
+
         self.json_data = {
             'noteId': self.noteId,
             'accountId': self.accountId_id if self.accountId else None,
