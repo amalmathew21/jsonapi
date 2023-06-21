@@ -212,7 +212,7 @@ class Opportunities(models.Model):
                 self.save_base64_image(self.profilePhoto, file_name)
                 self.profilePhoto = file_name
             else:
-                file_extension = os.path.splitext(self.profilePhoto.name)[-1].lstrip('.')
+                file_extension = os.path.splitext(self.opportunityName)[-1].lstrip('.')
                 file_name = f'opportunity_photos/{self.opportunityName}.{file_extension}'
                 default_storage.save(file_name, self.profilePhoto)
                 self.profilePhoto = file_name
