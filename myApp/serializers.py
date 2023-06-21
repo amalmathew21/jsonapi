@@ -114,6 +114,8 @@ class OpportunitySerializer(serializers.ModelSerializer):
             opportunity.profilePhoto.save(profile_photo.name, ContentFile(profile_photo.read()), save=True)
 
         return opportunity
+
+
 class TasksSerializer(serializers.ModelSerializer):
     profilePic = serializers.SerializerMethodField()
     accountId = serializers.CharField(required=False)
@@ -144,16 +146,18 @@ class TasksSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         account_id = validated_data.pop('accountId', None)
-        opportunityId = validated_data.pop('opportunityId', None)
+        opportunity_id = validated_data.pop('opportunityId', None)
         profile_pic = validated_data.pop('profilePic', None)
 
         if account_id:
             account_id = int(account_id)
 
-        if opportunityId:
-            opportunityId = int(opportunityId)
+        if opportunity_id:
+            opportunity = Opportunities.objects.get(opportunityId=int(opportunity_id))
+        else:
+            opportunity = None
 
-        task = Task.objects.create(accountId_id=account_id, opportunityId=opportunityId, **validated_data)
+        task = Task.objects.create(accountId_id=account_id, opportunityId=opportunity, **validated_data)
 
         if profile_pic:
             task.profilePic.save(profile_pic.name, ContentFile(profile_pic.read()), save=True)
@@ -162,11 +166,18 @@ class TasksSerializer(serializers.ModelSerializer):
 
 
 
+
+
+
+
+
+
 class ReportsSerializer(serializers.ModelSerializer):
     accountId = serializers.CharField(required=False)
     opportunityId = serializers.CharField(required=False)
     createdDate = serializers.DateField(default=date.today)
     modifiedDate = serializers.DateField(default=date.today)
+
     class Meta:
         model = Report
         fields = '__all__'
@@ -179,17 +190,18 @@ class ReportsSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         account_id = validated_data.pop('accountId', None)
-        opportunityId = validated_data.pop('opportunityId', None)
+        opportunity_id = validated_data.pop('opportunityId', None)
 
         if account_id:
             account_id = int(account_id)
 
-        if opportunityId:
-            opportunityId = int(opportunityId)
+        if opportunity_id:
+            opportunity = Opportunities.objects.get(opportunityId=int(opportunity_id))
+        else:
+            opportunity = None
 
-        report = Report.objects.create(accountId_id=account_id, opportunityId=opportunityId, **validated_data)
+        report = Report.objects.create(accountId_id=account_id, opportunityId=opportunity, **validated_data)
         return report
-
 
 class NotesSerializer(serializers.ModelSerializer):
     profilePhoto = serializers.SerializerMethodField()

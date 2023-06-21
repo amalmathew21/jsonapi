@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 import json
 from .serializers import *
 from .models import *
@@ -513,19 +513,19 @@ class OpportunitiesData(APIView):
 class TasksData(APIView):
     def get(self, request):
         tasks = Task.objects.all()
-        serializer = LeadsSerializer(tasks, many=True)
+        serializer = TasksSerializer(tasks, many=True)
         return Response(serializer.data)
 
 class ReportsData(APIView):
     def get(self, request):
         reports = Report.objects.all()
-        serializer = LeadsSerializer(reports, many=True)
+        serializer = ReportsSerializer(reports, many=True)
         return Response(serializer.data)
 
 class NotesData(APIView):
     def get(self, request):
         notes = Notes.objects.all()
-        serializer = LeadsSerializer(notes, many=True)
+        serializer = NotesSerializer(notes, many=True)
         return Response(serializer.data)
 
 
