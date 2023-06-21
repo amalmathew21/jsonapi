@@ -7,10 +7,11 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.files.storage import default_storage
 
 import json
-
+import os
 import base64
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+import uuid
 
 
 
@@ -49,6 +50,10 @@ for i in range(7, 51):
     dpLeadStatus.append((f'LS{i}', f'Choice {i}'))
 
 
+def save_base64_image(self, data, file_path):
+    image_data = base64.b64decode(data)
+    image_file = ContentFile(image_data, name=file_path)
+    default_storage.save(file_path, image_file)
 # Create your models here.
 
 class MyModel(models.Model):
@@ -108,7 +113,7 @@ class Lead(models.Model):
     createdDate = models.DateField(null=True, blank=True)
     modifiedDate = models.DateField(null=True, blank=True)
     accountName = models.TextField(null=True, blank=True)
-    accountRevenue = models.IntegerField(null=True, blank=True)
+    annualRevenue = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return str(self.leadId)
@@ -202,15 +207,15 @@ class Opportunities(models.Model):
     def save(self, *args, **kwargs):
         if self.profilePhoto:
             if isinstance(self.profilePhoto, str):
-
-                file_path = f'opportunity_photos/{self.profilePhoto.name}'
-                self.save_base64_image(self.profilePhoto, file_path)
-                self.profilePhoto = file_path
+                file_extension = 'jpg'  # Specify the file extension based on the actual image format
+                file_name = f'opportunity_photos/{self.opportunityName}.{file_extension}'
+                self.save_base64_image(self.profilePhoto, file_name)
+                self.profilePhoto = file_name
             else:
-
-                file_path = f'opportunity_photos/{self.profilePhoto.name}'
-                default_storage.save(file_path, self.profilePhoto)
-                self.profilePhoto = file_path
+                file_extension = os.path.splitext(self.profilePhoto.name)[-1].lstrip('.')
+                file_name = f'opportunity_photos/{self.opportunityName}.{file_extension}'
+                default_storage.save(file_name, self.profilePhoto)
+                self.profilePhoto = file_name
         else:
             self.profilePhoto = None
 
@@ -306,30 +311,28 @@ class Notes(models.Model):
     name = models.TextField(blank=True)
     profilePhoto = models.ImageField(upload_to='notes_profile_photos/', null=True, blank=True)
 
-    def save_base64_image(self, data, file_path):
-        image_data = base64.b64decode(data)
-        image_file = ContentFile(image_data, name=file_path)
-        default_storage.save(file_path, image_file)
-
     def save(self, *args, **kwargs):
         if self.profilePhoto:
             if isinstance(self.profilePhoto, str):
-
-                file_path = f'notes_profile_photos/{self.profilePhoto.name}'
-                self.save_base64_image(self.profilePhoto, file_path)
-                self.profilePhoto = file_path
+                # Handle base64-encoded image data
+                file_extension = 'jpg'  # Specify the file extension based on the actual image format
+                file_name = f'notes_profile_photos/{self.name}.{file_extension}'
+                save_base64_image(self.profilePhoto, file_name)
+                self.profilePhoto = file_name
             else:
-
-                file_path = f'notes_profile_photos/{self.profilePhoto.name}'
-                default_storage.save(file_path, self.profilePhoto)
-                self.profilePhoto = file_path
+                # Handle uploaded file
+                file_name, file_extension = os.path.splitext(self.profilePhoto.name)
+                file_extension = file_extension.lstrip('.')  # Remove the dot from the file extension
+                file_name = f'notes_profile_photos/{self.name}.{file_extension}'
+                default_storage.save(file_name, self.profilePhoto)
+                self.profilePhoto = file_name
         else:
             self.profilePhoto = None
 
         super().save(*args, **kwargs)
 
-    def __str__(self):
-        return str(self.noteId)
+        def __str__(self):
+            return str(self.noteId)
 
     class Meta:
         verbose_name_plural = 'Note'
