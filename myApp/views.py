@@ -277,25 +277,37 @@ class AccountAPIView(APIView):
 class OpportunityAPIView(APIView):
     parser_classes = [MultiPartParser]
 
+    # def post(self, request, format=None):
+    #     serializer = OpportunitySerializer(data=request.data)
+    #
+    #     if serializer.is_valid():
+    #         serializer.save(profilePhoto=request.data.get('profilePhoto'))  # Pass the file to the serializer
+    #         return Response({'message': 'Data saved successfully.'})
+    #     else:
+    #         return Response(serializer.errors, status=400)
+
     def post(self, request, format=None):
         serializer = OpportunitySerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.save(profilePhoto=request.data.get('profilePhoto'))  # Pass the file to the serializer
-            return Response({'message': 'Data saved successfully.'})
-        else:
-            return Response(serializer.errors, status=400)
-        
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
     def get_object(self, pk):
         try:
             return Opportunities.objects.get(pk=pk)
         except Opportunities.DoesNotExist:
             raise Http404
 
+
     def get(self, request, pk):
         opportunity = self.get_object(pk)
         serializer = OpportunitySerializer(opportunity)
         return Response(serializer.data)
+
 
     def put(self, request, pk):
         opportunity = self.get_object(pk)
@@ -305,6 +317,7 @@ class OpportunityAPIView(APIView):
             return Response({'message': 'Data updated successfully.'})
         return Response(serializer.errors, status=400)
 
+
     def patch(self, request, pk):
         opportunity = self.get_object(pk)
         serializer = OpportunitySerializer(opportunity, data=request.data, partial=True)
@@ -312,6 +325,7 @@ class OpportunityAPIView(APIView):
             serializer.save()
             return Response({'message': 'Data updated successfully.'})
         return Response(serializer.errors, status=400)
+
 
     def delete(self, request, pk):
         opportunity = self.get_object(pk)
@@ -331,6 +345,7 @@ class TaskAPIView(APIView):
             return Response({'message': 'Data saved successfully.'})
         else:
             return Response(serializer.errors, status=400)
+
     def get_object(self, pk):
         try:
             return Task.objects.get(pk=pk)
@@ -453,6 +468,7 @@ class NoteAPIView(APIView):
         notes.delete()
         return Response({'message': 'Data deleted successfully.'})
 
+
 # def get_opportunity_photo(request, opportunity_id):
 #     try:
 #         opportunity = Opportunities.objects.get(opportunityId=opportunity_id)
@@ -469,6 +485,7 @@ class NoteAPIView(APIView):
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from .models import Opportunities
+
 
 def opportunity_photo_view(request, opportunity_id):
     # Retrieve the Opportunities object based on the provided opportunity_id
@@ -492,11 +509,13 @@ def opportunity_photo_view(request, opportunity_id):
         # Return an appropriate response if the profile photo is not found
         return HttpResponse("Profile photo not found.", status=404)
 
+
 class LeadsData(APIView):
     def get(self, request):
         leads = Lead.objects.all()
         serializer = LeadsSerializer(leads, many=True)
         return Response(serializer.data)
+
 
 class AccountsData(APIView):
     def get(self, request):
@@ -504,11 +523,13 @@ class AccountsData(APIView):
         serializer = AccountsSerializer(accounts, many=True)
         return Response(serializer.data)
 
+
 class OpportunitiesData(APIView):
     def get(self, request):
         opportunity = Opportunities.objects.all()
         serializer = OpportunitySerializer(opportunity, many=True)
         return Response(serializer.data)
+
 
 class TasksData(APIView):
     def get(self, request):
@@ -516,16 +537,16 @@ class TasksData(APIView):
         serializer = TasksSerializer(tasks, many=True)
         return Response(serializer.data)
 
+
 class ReportsData(APIView):
     def get(self, request):
         reports = Report.objects.all()
         serializer = ReportsSerializer(reports, many=True)
         return Response(serializer.data)
 
+
 class NotesData(APIView):
     def get(self, request):
         notes = Notes.objects.all()
         serializer = NotesSerializer(notes, many=True)
         return Response(serializer.data)
-
-
