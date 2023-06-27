@@ -53,58 +53,6 @@ def json_data_view(request, pk=None):
         return JsonResponse({'message': 'Invalid request method.'})
 
 
-# @csrf_exempt
-# def image_data_view(request, pk=None):
-#     if request.method == 'GET':
-#         if pk is not None:
-#             image = get_object_or_404(Image, pk=pk)
-#             serializer = ImageSerializer(image)
-#             return JsonResponse(serializer.data)
-#         else:
-#             images = Image.objects.all()
-#             serializer = ImageSerializer(images, many=True)
-#             return JsonResponse(serializer.data, safe=False)
-#
-#     elif request.method == 'POST':
-#         image = request.FILES.get('image')
-#
-#         if not image:
-#             return JsonResponse({'message': 'No image provided.'}, status=400)
-#
-#         image_data = {'image': image}
-#         serializer = ImageSerializer(image=image_data)
-#
-#         if serializer.is_valid():
-#             serializer.save()
-#             return JsonResponse({'message': 'Data saved successfully.'})
-#         else:
-#             return JsonResponse(serializer.errors, status=400)
-#
-#     elif request.method == 'PUT':
-#         if pk is not None:
-#             image = get_object_or_404(Image, pk=pk)
-#             new_image = request.FILES.get('image')
-#
-#             if not new_image:
-#                 return JsonResponse({'message': 'No image provided.'}, status=400)
-#
-#             image.image = new_image
-#             image.save()
-#
-#             return JsonResponse({'message': 'Data updated successfully.'})
-#         else:
-#             return JsonResponse({'message': 'Invalid request.'}, status=400)
-#
-#     elif request.method == 'DELETE':
-#         if pk is not None:
-#             image = get_object_or_404(Image, pk=pk)
-#             image.delete()
-#             return JsonResponse({'message': 'Data deleted successfully.'})
-#         else:
-#             return JsonResponse({'message': 'Invalid request.'}, status=400)
-#
-#     else:
-#         return JsonResponse({'message': 'Invalid request method.'})
 
 @csrf_exempt
 def data_view(request, pk=None):
@@ -284,7 +232,7 @@ class OpportunityAPIView(APIView):
 
             profile_photo = request.FILES.get('profilePhoto')
             if profile_photo:
-                image_format = imghdr.what(profile_photo)
+                image_format = imghdr.what(None, h=profile_photo.read())
                 file_extension = image_format if image_format else 'jpg'
                 random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
                 file_name = f'opportunity_photos/{opportunity.opportunityId}_{random_string}.{file_extension}'
@@ -293,7 +241,6 @@ class OpportunityAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
     def get_object(self, pk):
         try:

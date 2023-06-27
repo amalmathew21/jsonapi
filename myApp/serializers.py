@@ -94,9 +94,6 @@ class OpportunitySerializer(serializers.ModelSerializer):
 
     def get_profilePhoto(self, instance):
         if instance.profilePhoto:
-            request = self.context.get('request')
-            if request is not None:
-                return request.build_absolute_uri(instance.profilePhoto.url)
             return instance.profilePhoto.url
         return None
 
@@ -113,15 +110,14 @@ class OpportunitySerializer(serializers.ModelSerializer):
 
         opportunity = Opportunities.objects.create(accountId_id=account_id, leadId_id=lead_id, **validated_data)
 
-
-
         if profile_photo:
-            image_format = imghdr.what(profile_photo)
+            image_format = imghdr.what(None, h=profile_photo.read())
             file_extension = image_format if image_format else 'jpg'
 
             random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
             file_name = f'opportunity_photos/{opportunity.opportunityId}_{random_string}.{file_extension}'
-            opportunity.profilePhoto.save(file_name, ContentFile(profile_photo.read()), save=True)
+            file_content = ContentFile(profile_photo.read())
+            opportunity.profilePhoto.save(file_name, file_content, save=True)
 
         return opportunity
 

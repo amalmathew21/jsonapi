@@ -15,8 +15,9 @@ import uuid
 import imghdr
 import random
 import string
-
-
+from io import BytesIO
+from PIL import Image
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 json_data1 = '''
     [
@@ -57,6 +58,8 @@ def save_base64_image(self, data, file_path):
     image_data = base64.b64decode(data)
     image_file = ContentFile(image_data, name=file_path)
     default_storage.save(file_path, image_file)
+
+
 # Create your models here.
 
 class MyModel(models.Model):
@@ -126,7 +129,6 @@ class Lead(models.Model):
 
 
 class Accounts(models.Model):
-
     accountId = models.IntegerField(primary_key=True)
     accountName = models.CharField(max_length=255)
     dpAccount_type = (
@@ -202,27 +204,39 @@ class Opportunities(models.Model):
     modifiedDate = models.DateField(null=True, blank=True)
     profilePhoto = models.ImageField(upload_to='opportunity_photos/', null=True, blank=True)
 
-    def save_base64_image(self, data, file_path):
-        image_data = base64.b64decode(data)
-        image_file = ContentFile(image_data, name=file_path)
-        default_storage.save(file_path, image_file)
+    # def save_base64_image(self, data, file_path):
+    #     image_data = base64.b64decode(data)
+    #     image_file = ContentFile(image_data, name=file_path)
+    #     default_storage.save(file_path, image_file)
 
+    @staticmethod
+    def save_base64_image(base64_string, file_name):
+        try:
+            image_data = base64.b64decode(base64_string)
+            image = Image.open(BytesIO(image_data))
+            image.save(file_name)
+            return True
+
+        except Exception as e:
+            print(f"Error saving image: {str(e)}")
+            return False
     def save(self, *args, **kwargs):
         if self.profilePhoto:
             if isinstance(self.profilePhoto, str):
-                image_format = imghdr.what(self.profilePhoto)
+                image_format = imghdr.what(None, h=self.profilePhoto)
                 file_extension = image_format if image_format else 'jpg'
                 random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
                 file_name = f'opportunity_photos/{self.opportunityId}_{random_string}.{file_extension}'
                 self.save_base64_image(self.profilePhoto, file_name)
                 self.profilePhoto = file_name
 
-            else:
-                image_format = imghdr.what(self.profilePhoto)
+            elif isinstance(self.profilePhoto, InMemoryUploadedFile):
+                image_format = imghdr.what(None, h=self.profilePhoto.read())
                 file_extension = image_format if image_format else 'jpg'
                 random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
                 file_name = f'opportunity_photos/{self.opportunityId}_{random_string}.{file_extension}'
-                default_storage.save(file_name, self.profilePhoto)
+                file_content = ContentFile(self.profilePhoto.read())
+                default_storage.save(file_name, file_content)
                 self.profilePhoto = file_name
 
         super().save(*args, **kwargs)
@@ -232,6 +246,7 @@ class Opportunities(models.Model):
 
     class Meta:
         verbose_name_plural = 'Opportunities'
+
 
 class Task(models.Model):
     taskId = models.IntegerField(primary_key=True)
@@ -257,7 +272,6 @@ class Task(models.Model):
     createdDate = models.DateField(null=True, blank=True)
     modifiedDate = models.DateField(null=True, blank=True)
     profilePic = models.ImageField(upload_to='task_profile_pics/', null=True, blank=True)
-
 
     def save_base64_image(self, data, file_path):
         image_data = base64.b64decode(data)
