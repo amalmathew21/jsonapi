@@ -277,15 +277,6 @@ class AccountAPIView(APIView):
 class OpportunityAPIView(APIView):
     parser_classes = [MultiPartParser]
 
-    # def post(self, request, format=None):
-    #     serializer = OpportunitySerializer(data=request.data)
-    #
-    #     if serializer.is_valid():
-    #         serializer.save(profilePhoto=request.data.get('profilePhoto'))  # Pass the file to the serializer
-    #         return Response({'message': 'Data saved successfully.'})
-    #     else:
-    #         return Response(serializer.errors, status=400)
-
     def post(self, request, format=None):
         serializer = OpportunitySerializer(data=request.data)
         if serializer.is_valid():
@@ -293,8 +284,6 @@ class OpportunityAPIView(APIView):
 
             profile_photo = request.FILES.get('profilePhoto')
             if profile_photo:
-                # file_extension = os.path.splitext(profile_photo.name)[-1].lstrip('.')
-                # file_name = f'opportunity_photos/{opportunity.opportunityName}.{file_extension}'
                 image_format = imghdr.what(profile_photo)
                 file_extension = image_format if image_format else 'jpg'
                 random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
@@ -349,7 +338,7 @@ class TaskAPIView(APIView):
     def post(self, request, format=None):
         serializer = TasksSerializer(data=request.data)
         if serializer.is_valid():
-            # Access uploaded file from request.FILES
+           
             profile_pic = request.FILES.get('profilePic')
             serializer.save(profilePic=profile_pic)  # Pass the file to the serializer
             return Response({'message': 'Data saved successfully.'})

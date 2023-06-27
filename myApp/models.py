@@ -209,26 +209,15 @@ class Opportunities(models.Model):
 
     def save(self, *args, **kwargs):
 
+
         if self.profilePhoto:
-            # if isinstance(self.profilePhoto, str):
-            #     image_format = imghdr.what(self.profilePhoto)
-            #     file_extension = image_format if image_format else 'jpg'
-            #     random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-            #     file_name = f'opportunity_photos/{self.opportunityId}_{random_string}.{file_extension}'
-            #     self.save_base64_image(self.profilePhoto, file_name)
-            #     self.profilePhoto = file_name
-
             if isinstance(self.profilePhoto, str):
-                image_data = base64.b64decode(self.profilePhoto)
-                image_extension = imghdr.what(None, h=image_data)
-                if image_extension:
-                    random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-                    file_name = f'opportunity_photos/{self.opportunityId}_{random_string}.{image_extension}'
-
-                    with open(file_name, 'wb') as file:
-                        file.write(image_data)
-
-                    self.profilePhoto = file_name
+                image_format = imghdr.what(self.profilePhoto)
+                file_extension = image_format if image_format else 'jpg'
+                random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+                file_name = f'opportunity_photos/{self.opportunityId}_{random_string}.{file_extension}'
+                self.save_base64_image(self.profilePhoto, file_name)
+                self.profilePhoto = file_name
 
             else:
                 image_format = imghdr.what(self.profilePhoto)
@@ -238,7 +227,10 @@ class Opportunities(models.Model):
                 default_storage.save(file_name, self.profilePhoto)
                 self.profilePhoto = file_name
 
+
         super().save(*args, **kwargs)
+
+        #base64 error
     def __str__(self):
         return str(self.opportunityId)
 
@@ -279,17 +271,20 @@ class Task(models.Model):
     def save(self, *args, **kwargs):
         if self.profilePic:
             if isinstance(self.profilePic, str):
+                image_format = imghdr.what(self.profilePic)
+                file_extension = image_format if image_format else 'jpg'
+                random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+                file_name = f'task_photos/{self.taskId}_{random_string}.{file_extension}'
+                self.save_base64_image(self.profilePic, file_name)
+                self.profilePic = file_name
 
-                file_path = f'task_profile_pics/{self.profilePic.name}'
-                self.save_base64_image(self.profilePic, file_path)
-                self.profilePic = file_path
             else:
-
-                file_path = f'task_profile_pics/{self.profilePic.name}'
-                default_storage.save(file_path, self.profilePic)
-                self.profilePic = file_path
-        else:
-            self.profilePic = None
+                image_format = imghdr.what(self.profilePic)
+                file_extension = image_format if image_format else 'jpg'
+                random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+                file_name = f'task_photos/{self.taskId}_{random_string}.{file_extension}'
+                default_storage.save(file_name, self.profilePic)
+                self.profilePhoto = file_name
 
         super().save(*args, **kwargs)
 
