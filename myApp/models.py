@@ -207,7 +207,7 @@ class Opportunities(models.Model):
     def save(self, *args, **kwargs):
         if self.profilePhoto:
             if isinstance(self.profilePhoto, str):
-                file_extension = 'jpg'  # Specify the file extension based on the actual image format
+                file_extension = os.path.splitext(self.profilePhoto)[-1].lstrip('.')
                 file_name = f'opportunity_photos/{self.opportunityName}.{file_extension}'
                 self.save_base64_image(self.profilePhoto, file_name)
                 self.profilePhoto = file_name
@@ -216,8 +216,6 @@ class Opportunities(models.Model):
                 file_name = f'opportunity_photos/{self.opportunityName}.{file_extension}'
                 default_storage.save(file_name, self.profilePhoto)
                 self.profilePhoto = file_name
-        else:
-            self.profilePhoto = None
 
         super().save(*args, **kwargs)
     def __str__(self):

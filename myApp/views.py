@@ -288,9 +288,15 @@ class OpportunityAPIView(APIView):
 
     def post(self, request, format=None):
         serializer = OpportunitySerializer(data=request.data)
-
         if serializer.is_valid():
-            serializer.save()
+            opportunity = serializer.save()
+
+            profile_photo = request.FILES.get('profilePhoto')
+            if profile_photo:
+                file_extension = os.path.splitext(profile_photo.name)[-1].lstrip('.')
+                file_name = f'opportunity_photos/{opportunity.opportunityName}.{file_extension}'
+                opportunity.profilePhoto.save(file_name, profile_photo, save=True)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

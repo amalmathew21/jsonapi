@@ -110,8 +110,9 @@ class OpportunitySerializer(serializers.ModelSerializer):
         opportunity = Opportunities.objects.create(accountId_id=account_id, leadId_id=lead_id, **validated_data)
 
         if profile_photo:
-
-            opportunity.profilePhoto.save(profile_photo.name, ContentFile(profile_photo.read()), save=True)
+            file_extension = os.path.splitext(profile_photo.name)[-1].lstrip('.')
+            file_name = f'opportunity_photos/{opportunity.opportunityName}.{file_extension}'
+            opportunity.profilePhoto.save(file_name, ContentFile(profile_photo.read()), save=True)
 
         return opportunity
 
