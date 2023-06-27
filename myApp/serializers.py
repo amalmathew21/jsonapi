@@ -4,6 +4,10 @@ from django.core.files.storage import default_storage
 from datetime import date
 from django.core.files.base import ContentFile
 
+import imghdr
+import random
+import string
+
 class DateField(serializers.Field):
     def to_representation(self, value):
         return value.strftime('%Y-%m-%d')
@@ -109,9 +113,17 @@ class OpportunitySerializer(serializers.ModelSerializer):
 
         opportunity = Opportunities.objects.create(accountId_id=account_id, leadId_id=lead_id, **validated_data)
 
+        # if profile_photo:
+        #     file_extension = os.path.splitext(profile_photo.name)[-1].lstrip('.')
+        #     file_name = f'opportunity_photos/{opportunity.opportunityName}.{file_extension}'
+        #     opportunity.profilePhoto.save(file_name, ContentFile(profile_photo.read()), save=True)
+
         if profile_photo:
-            file_extension = os.path.splitext(profile_photo.name)[-1].lstrip('.')
-            file_name = f'opportunity_photos/{opportunity.opportunityName}.{file_extension}'
+            image_format = imghdr.what(profile_photo)
+            file_extension = image_format if image_format else 'jpg'
+
+            random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+            file_name = f'opportunity_photos/{opportunity.opportunityId}_{random_string}.{file_extension}'
             opportunity.profilePhoto.save(file_name, ContentFile(profile_photo.read()), save=True)
 
         return opportunity

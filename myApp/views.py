@@ -293,8 +293,12 @@ class OpportunityAPIView(APIView):
 
             profile_photo = request.FILES.get('profilePhoto')
             if profile_photo:
-                file_extension = os.path.splitext(profile_photo.name)[-1].lstrip('.')
-                file_name = f'opportunity_photos/{opportunity.opportunityName}.{file_extension}'
+                # file_extension = os.path.splitext(profile_photo.name)[-1].lstrip('.')
+                # file_name = f'opportunity_photos/{opportunity.opportunityName}.{file_extension}'
+                image_format = imghdr.what(profile_photo)
+                file_extension = image_format if image_format else 'jpg'
+                random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+                file_name = f'opportunity_photos/{opportunity.opportunityId}_{random_string}.{file_extension}'
                 opportunity.profilePhoto.save(file_name, profile_photo, save=True)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)

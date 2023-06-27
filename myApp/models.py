@@ -12,6 +12,9 @@ import base64
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 import uuid
+import imghdr
+import random
+import string
 
 
 
@@ -205,15 +208,32 @@ class Opportunities(models.Model):
         default_storage.save(file_path, image_file)
 
     def save(self, *args, **kwargs):
+        # if self.profilePhoto:
+        #     if isinstance(self.profilePhoto, str):
+        #         file_extension = os.path.splitext(self.profilePhoto)[-1].lstrip('.')
+        #         file_name = f'opportunity_photos/{self.opportunityName}.{file_extension}'
+        #         self.save_base64_image(self.profilePhoto, file_name)
+        #         self.profilePhoto = file_name
+        #     else:
+        #         file_extension = os.path.splitext(self.opportunityName)[-1].lstrip('.')
+        #         file_name = f'opportunity_photos/{self.opportunityName}.{file_extension}'
+        #         default_storage.save(file_name, self.profilePhoto)
+        #         self.profilePhoto = file_name
+
         if self.profilePhoto:
             if isinstance(self.profilePhoto, str):
-                file_extension = os.path.splitext(self.profilePhoto)[-1].lstrip('.')
-                file_name = f'opportunity_photos/{self.opportunityName}.{file_extension}'
+                image_format = imghdr.what(self.profilePhoto)
+                file_extension = image_format if image_format else 'jpg'
+                random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+                file_name = f'opportunity_photos/{self.opportunityId}_{random_string}.{file_extension}'
                 self.save_base64_image(self.profilePhoto, file_name)
                 self.profilePhoto = file_name
+
             else:
-                file_extension = os.path.splitext(self.opportunityName)[-1].lstrip('.')
-                file_name = f'opportunity_photos/{self.opportunityName}.{file_extension}'
+                image_format = imghdr.what(self.profilePhoto)
+                file_extension = image_format if image_format else 'jpg'
+                random_string = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+                file_name = f'opportunity_photos/{self.opportunityId}_{random_string}.{file_extension}'
                 default_storage.save(file_name, self.profilePhoto)
                 self.profilePhoto = file_name
 
