@@ -529,6 +529,6 @@ class NotesData(APIView):
 
 class AudioReportData(APIView):
     def get(self,request):
-        reports=Report.objects.all()
+        reports=AudioReport.objects.all()
         serializer = AudioreportSerializer(reports, many=True)
         return Response(serializer.data)
