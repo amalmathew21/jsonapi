@@ -12,5 +12,6 @@ admin.site.register(Opportunities)
 admin.site.register(Task)
 admin.site.register(Report)
 admin.site.register(Notes)
+admin.site.register(AudioReport)
 
 

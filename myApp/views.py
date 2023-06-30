@@ -415,17 +415,48 @@ class NoteAPIView(APIView):
         return Response({'message': 'Data deleted successfully.'})
 
 
-# def get_opportunity_photo(request, opportunity_id):
-#     try:
-#         opportunity = Opportunities.objects.get(opportunityId=opportunity_id)
-#         if opportunity.profilePhoto:
-#             photo_url = request.build_absolute_uri(opportunity.profilePhoto.url)
-#             # Return the photo URL or use it to display the image in your response
-#             return HttpResponse(photo_url)
-#         else:
-#             return HttpResponse("No photo available.")
-#     except Opportunities.DoesNotExist:
-#         return HttpResponse("Opportunity not found.")
+class AudioreportAPIView(APIView):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request, format=None):
+        serializer = AudioreportSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Data saved successfully.'})
+        else:
+            return Response(serializer.errors, status=400)
+
+    def get_object(self, pk):
+        try:
+            return AudioReport.objects.get(pk=pk)
+        except AudioReport.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        report = self.get_object(pk)
+        serializer = AudioreportSerializer(report)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        report = self.get_object(pk)
+        serializer = AudioreportSerializer(report, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Data updated successfully.'})
+        return Response(serializer.errors, status=400)
+
+    def patch(self, request, pk):
+        report = self.get_object(pk)
+        serializer = AudioreportSerializer(report, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Data updated successfully.'})
+        return Response(serializer.errors, status=400)
+
+    def delete(self, request, pk):
+        report = self.get_object(pk)
+        report.delete()
+        return Response({'message': 'Data deleted successfully.'})
 
 
 from django.http import HttpResponse
@@ -433,27 +464,25 @@ from django.shortcuts import get_object_or_404
 from .models import Opportunities
 
 
-def opportunity_photo_view(request, opportunity_id):
-    # Retrieve the Opportunities object based on the provided opportunity_id
-    opportunity = get_object_or_404(Opportunities, opportunityId=opportunity_id)
-
-    # Assuming the profilePhoto is stored as a FileField or ImageField in the Opportunities model
-    profile_photo = opportunity.profilePhoto
-
-    # Check if the profile photo exists
-    if profile_photo and profile_photo.storage.exists(profile_photo.name):
-        # Retrieve the photo file content
-        with profile_photo.storage.open(profile_photo.name, 'rb') as file:
-            # Set the appropriate response headers
-            response = HttpResponse(file.read(), content_type='image/jpeg')
-
-            # You can optionally set a filename for the response
-            # response['Content-Disposition'] = 'attachment; filename="profile_photo.jpg"'
-
-            return response
-    else:
-        # Return an appropriate response if the profile photo is not found
-        return HttpResponse("Profile photo not found.", status=404)
+# def opportunity_photo_view(request, opportunity_id):
+#
+#     opportunity = get_object_or_404(Opportunities, opportunityId=opportunity_id)
+#
+#
+#     profile_photo = opportunity.profilePhoto
+#
+#
+#     if profile_photo and profile_photo.storage.exists(profile_photo.name):
+#
+#         with profile_photo.storage.open(profile_photo.name, 'rb') as file:
+#             # Set the appropriate response headers
+#             response = HttpResponse(file.read(), content_type='image/jpeg')
+#
+#
+#             return response
+#     else:
+#
+#         return HttpResponse("Profile photo not found.", status=404)
 
 
 class LeadsData(APIView):
@@ -495,4 +524,11 @@ class NotesData(APIView):
     def get(self, request):
         notes = Notes.objects.all()
         serializer = NotesSerializer(notes, many=True)
+        return Response(serializer.data)
+
+
+class AudioReportData(APIView):
+    def get(self,request):
+        reports=Report.objects.all()
+        serializer = AudioreportSerializer(reports, many=True)
         return Response(serializer.data)

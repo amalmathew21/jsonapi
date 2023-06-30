@@ -245,3 +245,10 @@ class NotesSerializer(serializers.ModelSerializer):
             notes.profilePhoto.save(profile_photo.name, ContentFile(profile_photo.read()), save=True)
 
         return notes
+
+
+
+class AudioreportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AudioReport
+        fields = '__all__'

@@ -360,3 +360,18 @@ class Notes(models.Model):
 
     class Meta:
         verbose_name_plural = 'Note'
+
+class AudioReport(models.Model):
+    reportId = models.IntegerField(primary_key=True)
+    reportName = models.TextField(null=True, blank=True)
+    accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
+    opportunityId = models.ForeignKey(Opportunities, on_delete=models.CASCADE, null=True)
+    createdDate = models.DateField(null=True, blank=True)
+    modifiedDate = models.DateField(null=True, blank=True)
+    audioFile = models.FileField(upload_to='audio_reports/', null=True, blank=True)
+
+    def __str__(self):
+        return str(self.reportId)
+
+    class Meta:
+        verbose_name_plural = 'Audio Reports'
