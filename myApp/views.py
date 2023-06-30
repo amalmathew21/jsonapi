@@ -415,11 +415,11 @@ class NoteAPIView(APIView):
         return Response({'message': 'Data deleted successfully.'})
 
 
-class AudioreportAPIView(APIView):
+class OrdoreportAPIView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, format=None):
-        serializer = AudioreportSerializer(data=request.data)
+        serializer = OrdoreportSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Data saved successfully.'})
@@ -428,18 +428,18 @@ class AudioreportAPIView(APIView):
 
     def get_object(self, pk):
         try:
-            return AudioReport.objects.get(pk=pk)
-        except AudioReport.DoesNotExist:
+            return OrdoReport.objects.get(pk=pk)
+        except OrdoReport.DoesNotExist:
             raise Http404
 
     def get(self, request, pk):
         report = self.get_object(pk)
-        serializer = AudioreportSerializer(report)
+        serializer = OrdoreportSerializer(report)
         return Response(serializer.data)
 
     def put(self, request, pk):
         report = self.get_object(pk)
-        serializer = AudioreportSerializer(report, data=request.data)
+        serializer = OrdoreportSerializer(report, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Data updated successfully.'})
@@ -447,7 +447,7 @@ class AudioreportAPIView(APIView):
 
     def patch(self, request, pk):
         report = self.get_object(pk)
-        serializer = AudioreportSerializer(report, data=request.data, partial=True)
+        serializer = OrdoreportSerializer(report, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Data updated successfully.'})
@@ -527,8 +527,8 @@ class NotesData(APIView):
         return Response(serializer.data)
 
 
-class AudioReportData(APIView):
-    def get(self,request):
-        reports=AudioReport.objects.all()
-        serializer = AudioreportSerializer(reports, many=True)
+class OrdoReportData(APIView):
+    def get(self, request):
+        reports=OrdoReport.objects.all()
+        serializer = OrdoreportSerializer(reports, many=True)
         return Response(serializer.data)
