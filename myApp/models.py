@@ -477,8 +477,8 @@ class Ordo_Report(models.Model):
     )
 
     SORT_CHOICES = (
-        ('asc', 'Ascending'),
-        ('dsc', 'Descending'),
+        ('ASC', 'Ascending'),
+        ('DSC', 'Descending'),
     )
     SORTBY_CHOICES = (
         ('createdDate','createdDate'),
