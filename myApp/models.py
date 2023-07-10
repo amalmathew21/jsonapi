@@ -493,6 +493,7 @@ class Ordo_Report(models.Model):
     summaryField = models.CharField(max_length=50)
     summaryLabel = models.CharField(max_length=50)
     sortBy = models.CharField(max_length=50, choices=SORT_CHOICES)
+    sortOrder = models.CharField(max_length=50,choices=SORT_CHOICES)
 
     def __str__(self):
         return self.name + str(self.id)
@@ -522,6 +523,7 @@ class Ordo_Report(models.Model):
             summaryField=data.get("summaryField"),
             summaryLabel=data.get("summaryLabel"),
             sortBy=data.get("sortBy"),
+            sortOrder=data.get("sortOrder"),
         )
 
     def save(self, *args, **kwargs):
