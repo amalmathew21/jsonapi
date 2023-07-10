@@ -419,7 +419,7 @@ class OrdoreportAPIView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, format=None):
-        serializer = OrdoreportSerializer(data=request.data)
+        serializer = OrdoReportSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Data saved successfully.'})
@@ -428,18 +428,18 @@ class OrdoreportAPIView(APIView):
 
     def get_object(self, pk):
         try:
-            return OrdoReport.objects.get(pk=pk)
-        except OrdoReport.DoesNotExist:
+            return Ordo_Report.objects.get(pk=pk)
+        except Ordo_Report.DoesNotExist:
             raise Http404
 
     def get(self, request, pk):
         report = self.get_object(pk)
-        serializer = OrdoreportSerializer(report)
+        serializer = OrdoReportSerializer(report)
         return Response(serializer.data)
 
     def put(self, request, pk):
         report = self.get_object(pk)
-        serializer = OrdoreportSerializer(report, data=request.data)
+        serializer = OrdoReportSerializer(report, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Data updated successfully.'})
@@ -447,7 +447,7 @@ class OrdoreportAPIView(APIView):
 
     def patch(self, request, pk):
         report = self.get_object(pk)
-        serializer = OrdoreportSerializer(report, data=request.data, partial=True)
+        serializer = OrdoReportSerializer(report, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response({'message': 'Data updated successfully.'})
@@ -529,6 +529,49 @@ class NotesData(APIView):
 
 class OrdoReportData(APIView):
     def get(self, request):
-        reports=OrdoReport.objects.all()
-        serializer = OrdoreportSerializer(reports, many=True)
+        reports = Ordo_Report.objects.all()
+        serializer = OrdoReportSerializer(reports, many=True)
         return Response(serializer.data)
+
+from rest_framework import generics
+class OrdoreportListCreateView(generics.ListCreateAPIView):
+    queryset = Ordo_Report.objects.all()
+    serializer_class = OrdoReportSerializer
+
+    def get(self, request, *args, **kwargs):
+        instances = self.get_queryset()
+        serializer = self.get_serializer(instances, many=True)
+        return Response(serializer.data)
+
+
+from django.http import JsonResponse
+from django.apps import apps
+
+def your_view(request,pk):
+    ordoreport = Ordo_Report.objects.get(id=pk)
+    primary_module_model = apps.get_model(app_label='myApp', model_name=ordoreport.primaryModule)
+    primary_module_instances = primary_module_model.objects.all()
+
+    field_values = {}
+    for field_data in ordoreport.fields:
+        field_name = field_data["fieldName"]
+        if hasattr(primary_module_model, field_name):
+            field_values[field_name] = [getattr(instance, field_name) for instance in primary_module_instances]
+
+    response_data = {
+        # "id": ordoreport.id,
+        # "assignedTo": ordoreport.assignedTo,
+        # "chartType": ordoreport.chartType,
+        # "description": ordoreport.description,
+        # "fields": ordoreport.fields,
+        # "groupByField": ordoreport.groupByField,
+        # "groupByLabel": ordoreport.groupByLabel,
+        # "name": ordoreport.name,
+        # "primaryModule": ordoreport.primaryModule,
+        # "summaryField": ordoreport.summaryField,
+        # "summaryLabel": ordoreport.summaryLabel,
+        # "sortBy": ordoreport.sortBy,
+        "field_values": field_values
+    }
+
+    return JsonResponse(response_data)

@@ -248,7 +248,8 @@ class NotesSerializer(serializers.ModelSerializer):
 
 
 
-class OrdoreportSerializer(serializers.ModelSerializer):
+class OrdoReportSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OrdoReport
+        model = Ordo_Report
         fields = '__all__'
+

@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import JSONField
 from django.forms import DateInput
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.files.storage import default_storage
-
+from django.apps import apps
 import json
 import os
 import base64
@@ -361,17 +361,172 @@ class Notes(models.Model):
     class Meta:
         verbose_name_plural = 'Note'
 
-class OrdoReport(models.Model):
-    reportId = models.IntegerField(primary_key=True)
-    reportName = models.TextField(null=True, blank=True)
-    accountId = models.ForeignKey(Accounts, on_delete=models.CASCADE, null=True)
-    opportunityId = models.ForeignKey(Opportunities, on_delete=models.CASCADE, null=True)
-    createdDate = models.DateField(null=True, blank=True)
-    modifiedDate = models.DateField(null=True, blank=True)
-    audioFile = models.FileField(upload_to='ordo_reports/', null=True, blank=True)
+
+
+
+
+
+
+
+
+# from django.db import models
+# from django.apps import apps
+
+
+# class OrdoReports(models.Model):
+#     ordoreportid = models.IntegerField(primary_key=True)
+#     assignedTo = models.TextField(default="admin")
+#     chart_choices = [
+#         ('line', 'line'),
+#         ('bar', 'bar'),
+#         ('doughnut', 'doughnut'),
+#         ('pie', 'pie'),
+#     ]
+#     chart = models.CharField(max_length=10, choices=chart_choices, blank=True)
+#     description = models.TextField(blank=True)
+#     name = models.CharField(max_length=255, blank=False)
+#     fieldName_choices = [
+#         ('Lead', 'Lead'),
+#         ('Accounts', 'Accounts'),
+#         ('Opportunities', 'Opportunities'),
+#         ('Task', 'Task'),
+#     ]
+#     fieldName = models.CharField(max_length=255, choices=fieldName_choices, null=True, blank=False)
+#     fieldLabel = models.CharField(max_length=255, blank=True)
+#     sort_choices = [
+#         ('asc', 'Ascending'),
+#         ('desc', 'Descending'),
+#     ]
+#     sortBy = models.CharField(max_length=4, choices=sort_choices, null=False, blank=False)
+#
+#     def __str__(self):
+#         return self.description
+#
+#     def save(self, *args, **kwargs):
+#         if self.fieldName:
+#             model = apps.get_model(app_label='myApp', model_name=self.fieldName)
+#             if model:
+#                 field_names = [field.name for field in model._meta.get_fields() if isinstance(field, models.Field)]
+#                 self.fieldLabel = ', '.join(field_names)
+#             else:
+#                 self.fieldLabel = ''
+#
+#         super().save(*args, **kwargs)
+
+
+
+# class OrdoReports(models.Model):
+#     CHART_CHOICES = (
+#         ('line', 'Line'),
+#         ('bar', 'Bar'),
+#         ('doughnut', 'Doughnut'),
+#         ('pie', 'Pie'),
+#     )
+#
+#     SORT_CHOICES = (
+#         ('asc', 'Ascending'),
+#         ('desc', 'Descending'),
+#     )
+#     ordoreportid = models.IntegerField(primary_key=True)
+#     assignedTo = models.CharField(max_length=50, default='admin')
+#     chartType = models.CharField(max_length=50, choices=CHART_CHOICES)
+#     description = models.TextField()
+#     groupByField = models.CharField(max_length=50, choices=[])
+#     groupByLabel = models.CharField(max_length=50, choices=[], null=True, blank=True)
+#     name = models.CharField(max_length=50)
+#     primaryModule = models.CharField(max_length=50, choices=[])
+#     summaryField = models.CharField(max_length=50, choices=[])
+#     summaryLabel = models.CharField(max_length=50, choices=[], null=True, blank=True)
+#     sortBy = models.CharField(max_length=50, choices=SORT_CHOICES)
+#
+#
+#     def __str__(self):
+#         return self.name
+#
+#     def save(self, *args, **kwargs):
+#
+#         module_fields = {
+#             'Lead': ['leadId', 'firstName','lastName', 'email','phoneNumber', 'fax','company', 'leadStatus','leadSource', 'city','state', 'country','pincode', 'createdDate','modifiedDate', 'accountName','annualRevenue'],
+#             'Accounts': ['accountId', 'accountName','accountType', 'accountNumber','industry', 'website','tickerSymbol', 'phoneNumber','billingAddress', 'shippingAddress','sicCode', 'createdDate','modifiedDate'],
+#             'Opportunities': ['opportunityId', 'opportunityName','opportunityType', 'accountId','leadId', 'leadSource','amount', 'stage','expectedCloseDate', 'probability', 'createdDate','modifiedDate','profilePhoto'],
+#             'Task': ['taskId', 'taskName','accountType', 'accountId','opportunityId', 'dueDate','startDate', 'status','priority', 'createdDate','modifiedDate','profilePic'],
+#         }
+#
+#         self._meta.get_field('groupByField').choices = [(field, field) for field in
+#                                                         module_fields.get(self.primaryModule, [])]
+#         self._meta.get_field('summaryField').choices = [(field, field) for field in
+#                                                         module_fields.get(self.primaryModule, [])]
+#         self._meta.get_field('primaryModule').choices = [(module, module) for module in module_fields.keys()]
+#         self._meta.get_field('groupByLabel').choices = self._meta.get_field('groupByField').choices
+#         self._meta.get_field('summaryLabel').choices = self._meta.get_field('summaryField').choices
+#
+#
+#         self.groupByLabel = self.groupByField
+#         self.summaryLabel = self.summaryField
+#         super().save(*args, **kwargs)
+
+
+
+
+class Ordo_Report(models.Model):
+    CHART_CHOICES = (
+        ('line', 'Line'),
+        ('bar', 'Bar'),
+        ('doughnut', 'Doughnut'),
+        ('pie', 'Pie'),
+    )
+
+    SORT_CHOICES = (
+        ('asc', 'Ascending'),
+        ('desc', 'Descending'),
+    )
+
+
+    assignedTo = models.CharField(max_length=50, default='admin')
+    chartType = models.CharField(max_length=50, choices=CHART_CHOICES)
+    description = models.TextField()
+    fields = models.JSONField(default=list)  # New field for storing the "fields" attribute
+    groupByField = models.CharField(max_length=50)
+    groupByLabel = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
+    primaryModule = models.CharField(max_length=50)
+    summaryField = models.CharField(max_length=50)
+    summaryLabel = models.CharField(max_length=50)
+    sortBy = models.CharField(max_length=50, choices=SORT_CHOICES)
 
     def __str__(self):
-        return str(self.reportId)
+        return self.name + str(self.id)
 
-    class Meta:
-        verbose_name_plural = 'Ordo Reports'
+    @classmethod
+    def create_from_raw_data(cls, data):
+        primary_module = data.get("primaryModule")
+        model = apps.get_model(app_label='your_app_label', model_name=primary_module)
+
+        fields_data = data.get("fields", [])
+        fields = []
+        for field_data in fields_data:
+            field_name = field_data.get("fieldName")
+            field_label = field_data.get("fieldLabel")
+            if field_name in model._meta.get_all_field_names():
+                fields.append({"fieldName": field_name, "fieldLabel": field_label})
+
+        return cls(
+            assignedTo=data.get("assignedTo"),
+            chartType=data.get("chartType"),
+            description=data.get("description"),
+            fields=fields,
+            groupByField=data.get("groupByField"),
+            groupByLabel=data.get("groupByLabel"),
+            name=data.get("name"),
+            primaryModule=data.get("primaryModule"),
+            summaryField=data.get("summaryField"),
+            summaryLabel=data.get("summaryLabel"),
+            sortBy=data.get("sortBy"),
+        )
+
+    def save(self, *args, **kwargs):
+        self.groupByLabel = self.groupByField
+        self.summaryLabel = self.summaryField
+        super().save(*args, **kwargs)
+
+

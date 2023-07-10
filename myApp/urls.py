@@ -25,7 +25,7 @@ urlpatterns = [
     path('api/notes/<int:pk>/', NoteAPIView.as_view(), name='notes'),
     path('api/ordoreports/', OrdoreportAPIView.as_view(), name='audioreports'),
     path('api/ordoreports/<int:pk>/', OrdoreportAPIView.as_view(), name='audioreports'),
-    # path('api/opportunity/<int:opportunity_id>/photo/',views.opportunity_photo_view, name='opportunity_photo'),
+    #path('api/opportunity/<int:opportunity_id>/photo/',views.opportunity_photo_view, name='opportunity_photo'),
 
     path('api/leadsdata/',LeadsData.as_view(),name="leaddata"),
     path('api/accountsdata/',AccountsData.as_view(),name="accountsdata"),
@@ -34,6 +34,9 @@ urlpatterns = [
     path('api/reportsdata/',ReportsData.as_view(),name="reportsdata"),
     path('api/notesdata/',NotesData.as_view(),name="notesdata"),
     path('api/ordoreportsdata/',OrdoReportData.as_view(),name="ordoreportsdata"),
+
+    path('ordoreports/', OrdoreportListCreateView.as_view(), name='ordoreport-list-create'),
+    path('reportview/<int:pk>/',views.your_view,name='reportlist'),
 
 
 
