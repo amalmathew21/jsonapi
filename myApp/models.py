@@ -478,7 +478,11 @@ class Ordo_Report(models.Model):
 
     SORT_CHOICES = (
         ('asc', 'Ascending'),
-        ('desc', 'Descending'),
+        ('dsc', 'Descending'),
+    )
+    SORTBY_CHOICES = (
+        ('createdDate','createdDate'),
+        ('modifiedDate','modifiedDate'),
     )
 
 
@@ -492,7 +496,8 @@ class Ordo_Report(models.Model):
     primaryModule = models.CharField(max_length=50)
     summaryField = models.CharField(max_length=50)
     summaryLabel = models.CharField(max_length=50)
-    sortBy = models.CharField(max_length=50, choices=SORT_CHOICES)
+    sortBy = models.CharField(max_length=50, choices=SORTBY_CHOICES)
+    sortOrder = models.CharField(max_length=50,choices=SORT_CHOICES)
 
     def __str__(self):
         return self.name + str(self.id)
@@ -510,6 +515,15 @@ class Ordo_Report(models.Model):
             if field_name in model._meta.get_all_field_names():
                 fields.append({"fieldName": field_name, "fieldLabel": field_label})
 
+        created_date_values = [getattr(instance, "createdDate") for instance in model.objects.all()]
+        modified_date_values = [getattr(instance, "modifiedDate") for instance in model.objects.all()]
+
+
+        if "createdDate" in data.get("sortBy", ""):
+            data["sortBy"] = created_date_values
+        elif "modifiedDate" in data.get("sortBy", ""):
+            data["sortBy"] = modified_date_values
+
         return cls(
             assignedTo=data.get("assignedTo"),
             chartType=data.get("chartType"),
@@ -522,6 +536,7 @@ class Ordo_Report(models.Model):
             summaryField=data.get("summaryField"),
             summaryLabel=data.get("summaryLabel"),
             sortBy=data.get("sortBy"),
+            sortOrder=data.get("sortOrder"),
         )
 
     def save(self, *args, **kwargs):
