@@ -27,6 +27,7 @@ urlpatterns = [
     path('api/ordoreports/<int:pk>/', OrdoreportAPIView.as_view(), name='audioreports'),
     #path('api/opportunity/<int:opportunity_id>/photo/',views.opportunity_photo_view, name='opportunity_photo'),
 
+    path('api/mymodules/',MymodelData.as_view(),name="mymodules"),
     path('api/leadsdata/',LeadsData.as_view(),name="leaddata"),
     path('api/accountsdata/',AccountsData.as_view(),name="accountsdata"),
     path('api/opportunitiesdata/',OpportunitiesData.as_view(),name="opportunitiesdata"),

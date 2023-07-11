@@ -485,6 +485,12 @@ from .models import Opportunities
 #         return HttpResponse("Profile photo not found.", status=404)
 
 
+class MymodelData(APIView):
+    def get(self, request):
+        mymodel = MyModel.objects.all()
+        serializer = MyModelSerializer(mymodel, many=True)
+        return Response(serializer.data)
+
 class LeadsData(APIView):
     def get(self, request):
         leads = Lead.objects.all()

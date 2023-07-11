@@ -68,6 +68,10 @@ class MyModel(models.Model):
     def __str__(self):
         return f'MyModel object ({self.pk})'
 
+    def display_data(self):
+        data = {field.name: getattr(self, field.name) for field in self._meta.fields if field.name != 'json_file'}
+        return data
+
 
 class DropdownModel(models.Model):
     json_data = models.JSONField(null=False, default=dict)
