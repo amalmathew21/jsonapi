@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
-    path('api/json-file/<int:pk>/', json_data_view, name='json-file'),
+    path('api/mymodules/<int:pk>/', json_data_view, name='json-file'),
     path('api/json-file/', json_data_view,name='viewdata'),
     path('api/dropdown/', dropdown_dataview, name='dropdown-data-view'),
     path('api/dropdown/<int:pk>/', dropdown_dataview, name='dropdown-data-detail'),
