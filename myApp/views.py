@@ -581,3 +581,13 @@ def your_view(request,pk):
     }
 
     return JsonResponse(response_data)
+
+
+
+class CreateUserList(generics.ListCreateAPIView):
+    queryset = createUser.objects.all()
+    serializer_class = CreateUserSerializer
+
+class CreateUserDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = createUser.objects.all()
+    serializer_class = CreateUserSerializer

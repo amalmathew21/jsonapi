@@ -549,3 +549,26 @@ class Ordo_Report(models.Model):
         super().save(*args, **kwargs)
 
 
+
+###user creation
+
+class createUser(models.Model):
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    ]
+
+    USER_TYPE_CHOICES = [
+        ('regular', 'Regular User'),
+        ('admin', 'System Administrator User'),
+    ]
+
+    userName = models.CharField(max_length=100,unique=True)
+    firstName = models.CharField(max_length=100)
+    lastName = models.CharField(max_length=100)
+    email = models.EmailField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES)
+    userType = models.CharField(max_length=20, choices=USER_TYPE_CHOICES)
+    photo = models.ImageField(upload_to='user_photos/')
+    newPassword = models.CharField(max_length=100)
+    confirmPassword = models.CharField(max_length=100)

@@ -253,3 +253,10 @@ class OrdoReportSerializer(serializers.ModelSerializer):
         model = Ordo_Report
         fields = '__all__'
 
+
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = createUser
+        fields = '__all__'
+
