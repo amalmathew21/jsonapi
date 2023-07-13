@@ -36,6 +36,7 @@ urlpatterns = [
     path('api/reportsdata/',ReportsData.as_view(),name="reportsdata"),
     path('api/notesdata/',NotesData.as_view(),name="notesdata"),
     path('api/ordoreportsdata/',OrdoReportData.as_view(),name="ordoreportsdata"),
+    path('api/allusers/',CreateUserView.as_view(),name="all-users-details"),
 
     path('ordoreports/', OrdoreportListCreateView.as_view(), name='ordoreport-list-create'),
     path('reportview/<int:pk>/',views.your_view,name='reportlist'),

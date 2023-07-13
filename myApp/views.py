@@ -591,3 +591,12 @@ class CreateUserList(generics.ListCreateAPIView):
 class CreateUserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = createUser.objects.all()
     serializer_class = CreateUserSerializer
+
+class CreateUserView(generics.ListCreateAPIView):
+    queryset = createUser.objects.all()
+    serializer_class = CreateUserSerializer
+
+    def get(self, request, *args, **kwargs):
+        instances = self.get_queryset()
+        serializer = self.get_serializer(instances, many=True)
+        return Response(serializer.data)
